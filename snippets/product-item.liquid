@@ -112,6 +112,44 @@
       {%- endif -%}
     </a>
 
+    {%- if show_quick_add and product.available and product.variants.size > 1 -%}
+      <form class="quick-add-form" method="post" action="/cart/add" style="margin-bottom: 1em;">
+        <input type="hidden" name="form_type" value="product">
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" class="quick-add-variant-id">
+        {%- for option in product.options_with_values -%}
+          <label for="quick-add-{{ product.id }}-option{{ forloop.index }}" style="display:block;margin-top:0.5em;">{{ option.name }}</label>
+          <select name="option{{ forloop.index }}" id="quick-add-{{ product.id }}-option{{ forloop.index }}" class="quick-add-option-select" style="width:100%;margin-bottom:0.5em;">
+            <option value="" disabled selected>Select {{ option.name }}</option>
+            {%- for value in option.values -%}
+              <option value="{{ value | escape }}" {% if value == option.selected_value %}selected{% endif %}>{{ value }}</option>
+            {%- endfor -%}
+          </select>
+        {%- endfor -%}
+        <button type="submit" class="button button--primary button--full" style="margin-top:0.5em;">ADD</button>
+      </form>
+      <script>
+        (function() {
+          var form = document.currentScript.previousElementSibling;
+          if (!form || !form.classList.contains('quick-add-form')) return;
+          var selects = form.querySelectorAll('.quick-add-option-select');
+          var variantInput = form.querySelector('.quick-add-variant-id');
+          var variants = {{ product.variants | json }};
+          function updateVariantId() {
+            var selectedOptions = Array.from(selects).map(function(select) { return select.value; });
+            var found = variants.find(function(variant) {
+              return variant.options.join() === selectedOptions.join();
+            });
+            if (found) {
+              variantInput.value = found.id;
+            }
+          }
+          selects.forEach(function(select) {
+            select.addEventListener('change', updateVariantId);
+          });
+        })();
+      </script>
+    {%- endif -%}
+
     {%- if request.page_type != 'password'
       and settings.product_add_to_cart
       and product.available
