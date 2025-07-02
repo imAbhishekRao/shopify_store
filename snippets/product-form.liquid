@@ -941,7 +941,10 @@ IMPLEMENTATION NOTE: if during the iteration of the options we have found an opt
 </script>
 
 {%- for variant in product.variants -%}
-  {%- assign is_low_stock = variant.inventory_quantity < 20 and variant.inventory_management and variant.inventory_policy == 'deny' -%}
+  {%- assign is_low_stock = false -%}
+  {%- if variant.inventory_management and variant.inventory_policy == 'deny' and variant.inventory_quantity < 20 -%}
+    {%- assign is_low_stock = true -%}
+  {%- endif -%}
   <div id="variant-{{ variant.id }}-stock-status" style="display:none;">
     {%- if is_low_stock -%}
       <span class="inventory inventory--low">Out of stock</span>
