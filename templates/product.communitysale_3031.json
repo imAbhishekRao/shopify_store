@@ -508,7 +508,7 @@
         "include_vertical_margins": true
       }
     },
-    "product_recommendations_kJixpw": {
+    "product_recommendations_rrj6FU": {
       "type": "product-recommendations",
       "name": "Related products",
       "settings": {
@@ -523,7 +523,7 @@
   },
   "order": [
     "main",
-    "product_recommendations_kJixpw",
+    "product_recommendations_rrj6FU",
     "product-content",
     "130e7648-bb2e-4748-87c7-b795a7e27407",
     "cd437615-44a9-4e8d-9bcf-30f21823c1dc",
