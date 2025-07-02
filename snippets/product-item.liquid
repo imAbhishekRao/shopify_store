@@ -113,14 +113,50 @@
     </a>
 
     {%- if show_quick_add and product.available and product.variants.size > 1 -%}
-      <form class="quick-add-form" method="post" action="/cart/add" style="margin-bottom: 1em;">
+      <style>
+        .quick-add-form .quick-add-option-label {
+          font-size: 0.97em;
+          font-weight: 500;
+          color: #222;
+          margin-bottom: 0.25em;
+          display: block;
+          letter-spacing: 0.01em;
+        }
+        .quick-add-form .quick-add-option-select {
+          width: 100%;
+          padding: 0.45em 1.2em 0.45em 0.7em;
+          border: 1px solid #e3e3e3;
+          border-radius: 6px;
+          background: #fafbfc;
+          font-size: 1em;
+          color: #222;
+          margin-bottom: 0.25em;
+          appearance: none;
+          -webkit-appearance: none;
+          transition: border 0.2s;
+        }
+        .quick-add-form .quick-add-option-select:focus {
+          border: 1.5px solid #b5b5b5;
+          outline: none;
+          background: #fff;
+        }
+        .quick-add-form .quick-add-dropdown-row {
+          display: flex;
+          gap: 0.7em;
+          margin-bottom: 0.5em;
+        }
+        .quick-add-form .quick-add-dropdown-col {
+          flex: 1;
+        }
+      </style>
+      <form is="product-form" class="quick-add-form" method="post" action="/cart/add" style="margin-bottom: 1em;">
         <input type="hidden" name="form_type" value="product">
         <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" class="quick-add-variant-id">
-        <span style="display: flex; gap: 0.5em; margin-bottom: 0.5em;">
+        <span class="quick-add-dropdown-row">
         {%- for option in product.options_with_values -%}
-          <span style="flex:1;">
-            <label for="quick-add-{{ product.id }}-option{{ forloop.index }}" style="display:block;">{{ option.name }}</label>
-            <select name="option{{ forloop.index }}" id="quick-add-{{ product.id }}-option{{ forloop.index }}" class="quick-add-option-select" style="width:100%;">
+          <span class="quick-add-dropdown-col">
+            <label for="quick-add-{{ product.id }}-option{{ forloop.index }}" class="quick-add-option-label">{{ option.name }}</label>
+            <select name="option{{ forloop.index }}" id="quick-add-{{ product.id }}-option{{ forloop.index }}" class="quick-add-option-select">
               <option value="" disabled selected>Select {{ option.name }}</option>
               {%- for value in option.values -%}
                 <option value="{{ value | escape }}" {% if value == option.selected_value %}selected{% endif %}>{{ value }}</option>
@@ -149,26 +185,6 @@
           }
           selects.forEach(function(select) {
             select.addEventListener('change', updateVariantId);
-          });
-          // AJAX add to cart to trigger cart drawer
-          form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            var formData = new FormData(form);
-            fetch('/cart/add.js', {
-              method: 'POST',
-              body: formData,
-              credentials: 'same-origin',
-              headers: { 'Accept': 'application/json' }
-            })
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
-              // Try to trigger Shopify's cart drawer event
-              if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cart && typeof window.Shopify.theme.cart.openCartDrawer === 'function') {
-                window.Shopify.theme.cart.openCartDrawer();
-              } else if (window.dispatchEvent) {
-                window.dispatchEvent(new CustomEvent('cart:refresh'));
-              }
-            });
           });
         })();
       </script>
