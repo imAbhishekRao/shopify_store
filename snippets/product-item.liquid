@@ -116,16 +116,20 @@
       <form class="quick-add-form" method="post" action="/cart/add" style="margin-bottom: 1em;">
         <input type="hidden" name="form_type" value="product">
         <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" class="quick-add-variant-id">
+        <span style="display: flex; gap: 0.5em; margin-bottom: 0.5em;">
         {%- for option in product.options_with_values -%}
-          <label for="quick-add-{{ product.id }}-option{{ forloop.index }}" style="display:block;margin-top:0.5em;">{{ option.name }}</label>
-          <select name="option{{ forloop.index }}" id="quick-add-{{ product.id }}-option{{ forloop.index }}" class="quick-add-option-select" style="width:100%;margin-bottom:0.5em;">
-            <option value="" disabled selected>Select {{ option.name }}</option>
-            {%- for value in option.values -%}
-              <option value="{{ value | escape }}" {% if value == option.selected_value %}selected{% endif %}>{{ value }}</option>
-            {%- endfor -%}
-          </select>
+          <span style="flex:1;">
+            <label for="quick-add-{{ product.id }}-option{{ forloop.index }}" style="display:block;">{{ option.name }}</label>
+            <select name="option{{ forloop.index }}" id="quick-add-{{ product.id }}-option{{ forloop.index }}" class="quick-add-option-select" style="width:100%;">
+              <option value="" disabled selected>Select {{ option.name }}</option>
+              {%- for value in option.values -%}
+                <option value="{{ value | escape }}" {% if value == option.selected_value %}selected{% endif %}>{{ value }}</option>
+              {%- endfor -%}
+            </select>
+          </span>
         {%- endfor -%}
-        <button type="submit" class="button button--primary button--full" style="margin-top:0.5em;">ADD</button>
+        </span>
+        <button type="submit" class="button button--primary button--full" style="margin-top:0.5em;">ADD TO CART</button>
       </form>
       <script>
         (function() {
@@ -145,6 +149,26 @@
           }
           selects.forEach(function(select) {
             select.addEventListener('change', updateVariantId);
+          });
+          // AJAX add to cart to trigger cart drawer
+          form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(form);
+            fetch('/cart/add.js', {
+              method: 'POST',
+              body: formData,
+              credentials: 'same-origin',
+              headers: { 'Accept': 'application/json' }
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+              // Try to trigger Shopify's cart drawer event
+              if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cart && typeof window.Shopify.theme.cart.openCartDrawer === 'function') {
+                window.Shopify.theme.cart.openCartDrawer();
+              } else if (window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('cart:refresh'));
+              }
+            });
           });
         })();
       </script>
