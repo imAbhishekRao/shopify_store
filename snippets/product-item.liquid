@@ -570,37 +570,18 @@
       .quick-add-form .quick-add-dropdown-col {
         flex: 1;
       }
-      /* Mobile styles */
+      /* Mobile styles: always show dropdowns, stack product cards vertically */
       @media (max-width: 700px) {
-        .quick-add-form .quick-add-dropdown-row,
-        .quick-add-form .quick-add-option-label,
-        .quick-add-form .quick-add-option-select {
-          display: none;
+        .product-list__inner.product-list__inner--scroller {
+          flex-direction: column !important;
+          display: flex !important;
+          overflow-x: visible !important;
+          gap: 1.5em;
         }
-        .quick-add-form.show-dropdowns .quick-add-dropdown-row,
-        .quick-add-form.show-dropdowns .quick-add-option-label,
-        .quick-add-form.show-dropdowns .quick-add-option-select {
-          display: block;
-        }
-        .quick-add-form .quick-add-mobile-btn {
-          display: block;
-          width: 100%;
-          background: #fff;
-          color: #222;
-          border: 2px solid #222;
-          border-radius: 6px;
-          font-size: 1.1em;
-          font-weight: 600;
-          padding: 0.9em 0;
-          margin: 1em 0 0.5em 0;
-          letter-spacing: 0.05em;
-          text-align: center;
-          transition: background 0.2s, color 0.2s;
-        }
-        .quick-add-form .quick-add-mobile-btn.active {
-          background: #222;
-          color: #fff;
-          border-color: #222;
+        .product-item {
+          min-width: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
         }
       }
     </style>
@@ -620,7 +601,6 @@
         </span>
       {%- endfor -%}
       </span>
-      <button type="button" class="quick-add-mobile-btn" style="display:none;">SELECT A SIZE</button>
       <button type="submit" class="button button--primary button--full" style="margin-top:0.5em;">ADD TO CART</button>
     </form>
     <script>
@@ -630,8 +610,6 @@
         var selects = form.querySelectorAll('.quick-add-option-select');
         var variantInput = form.querySelector('.quick-add-variant-id');
         var variants = {{ product.variants | json }};
-        var mobileBtn = form.querySelector('.quick-add-mobile-btn');
-        var addToCartBtn = form.querySelector('button[type="submit"]');
         function updateVariantId() {
           var selectedOptions = Array.from(selects).map(function(select) { return select.value; });
           var found = variants.find(function(variant) {
@@ -643,33 +621,6 @@
         }
         selects.forEach(function(select) {
           select.addEventListener('change', updateVariantId);
-        });
-        // Mobile logic
-        function isMobile() {
-          return window.innerWidth <= 700;
-        }
-        function showMobileBtn() {
-          if (!isMobile()) {
-            mobileBtn.style.display = 'none';
-            form.classList.add('show-dropdowns');
-            addToCartBtn.style.display = '';
-            return;
-          }
-          mobileBtn.style.display = '';
-          addToCartBtn.style.display = 'none';
-          form.classList.remove('show-dropdowns');
-        }
-        showMobileBtn();
-        window.addEventListener('resize', showMobileBtn);
-        mobileBtn.addEventListener('click', function() {
-          if (!form.classList.contains('show-dropdowns')) {
-            form.classList.add('show-dropdowns');
-            mobileBtn.textContent = 'ADD TO CART';
-            mobileBtn.classList.add('active');
-            addToCartBtn.style.display = '';
-          } else {
-            addToCartBtn.click();
-          }
         });
       })();
     </script>
