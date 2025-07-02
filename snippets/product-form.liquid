@@ -816,7 +816,7 @@
         {%- endif -%}
 
         <div js-new-variant-registration-form class="new-variant-registration-form {% unless product.selected_or_first_available_variant.metafields.custom.new_variant_not_for_sale == true %}hide{% endunless %}">
-          <div class="{% if product.metafields.custom.klaviyo_form_id != blank %}{{ product.metafields.custom.klaviyo_form_id  }}{% else %}klaviyo-form-QYRkyn{% endif %}"></div>
+          <div {% if product.metafields.custom.klaviyo_form_id != blank %}{{ product.metafields.custom.klaviyo_form_id  }}{% else %}class="klaviyo-form-QYRkyn"{% endif %}></div>
         </div>
 
         {%- if template.suffix != 'quick-buy-popover' -%}
@@ -938,4 +938,48 @@ IMPLEMENTATION NOTE: if during the iteration of the options we have found an opt
 
   {% endfor %}
 
+</script>
+
+{%- for variant in product.variants -%}
+  {%- assign is_low_stock = variant.inventory_quantity < 20 and variant.inventory_management and variant.inventory_policy == 'deny' -%}
+  <div id="variant-{{ variant.id }}-stock-status" style="display:none;">
+    {%- if is_low_stock -%}
+      <span class="inventory inventory--low">Out of stock</span>
+    {%- elsif variant.available -%}
+      <span class="inventory inventory--high">{{ 'product.form.in_stock' | t }}</span>
+    {%- else -%}
+      <span class="inventory inventory--low">{{ 'product.form.sold_out' | t }}</span>
+    {%- endif -%}
+  </div>
+{%- endfor -%}
+
+<script>
+(function() {
+  function updateStockStatus() {
+    var select = document.querySelector('[name="id"]');
+    if (!select) return;
+    var selectedId = select.value;
+    var allStatuses = document.querySelectorAll('[id^="variant-"][id$="-stock-status"]');
+    allStatuses.forEach(function(el) { el.style.display = 'none'; });
+    var status = document.getElementById('variant-' + selectedId + '-stock-status');
+    if (status) status.style.display = '';
+    // Disable add to cart if out of stock
+    var addBtn = document.getElementById('AddToCart');
+    var paymentBtn = document.querySelector('.shopify-payment-button button');
+    if (status && status.textContent.includes('Out of stock')) {
+      if (addBtn) addBtn.setAttribute('disabled', 'disabled');
+      if (paymentBtn) paymentBtn.setAttribute('disabled', 'disabled');
+    } else {
+      if (addBtn) addBtn.removeAttribute('disabled');
+      if (paymentBtn) paymentBtn.removeAttribute('disabled');
+    }
+  }
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.name && e.target.name.startsWith('option')) {
+      setTimeout(updateStockStatus, 10);
+    }
+  });
+  document.addEventListener('DOMContentLoaded', updateStockStatus);
+  setTimeout(updateStockStatus, 100);
+})();
 </script>
