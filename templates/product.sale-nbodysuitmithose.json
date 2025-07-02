@@ -572,23 +572,10 @@
         "include_horizontal_margins": true,
         "include_vertical_margins": true
       }
-    },
-    "product_recommendations_qznEnL": {
-      "type": "product-recommendations",
-      "name": "Related products",
-      "settings": {
-        "subheading": "",
-        "title": "You may also like",
-        "recommendations_count": 4,
-        "background": "rgba(0,0,0,0)",
-        "text_color": "rgba(0,0,0,0)",
-        "section_class": ""
-      }
     }
   },
   "order": [
     "main",
-    "product_recommendations_qznEnL",
     "product_recommendations_yp8CmC",
     "multi_column_LEa74J",
     "product-content",
