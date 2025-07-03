@@ -233,8 +233,7 @@
         "other": "Nur noch {{count}} übrig"
       },
       "contact_us": "Kontaktiere uns"
-    },
-    "select_options": "Optionen auswählen"
+    }
   },
   "store_availability": {
     "general": {
@@ -546,7 +545,7 @@
       "no_slider": "No Slider"
     },
     "Newsletter": {
-      "err_msg_default": "Can't send email. Please try again later.",
+      "err_msg_default": "Can’t send email. Please try again later.",
       "success_msg_default": "Thanks for contacting us. We'll get back to you as soon as possible."
     },
     "IconListV2": {
