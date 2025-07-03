@@ -203,17 +203,19 @@
           %}
           <a href="{{ product.url }}" data-instant class="product-item-meta__title">{{ product_title }}</a>
 
+          {%- comment -%} Remove product metafield color_for_collection_pages display {% endcomment -%}
+          {%- comment -%}
           {% if product.metafields.custom.color_for_collection_pages != blank %}
             <span class="color--Metafeilds">
               {{ product.metafields.custom.color_for_collection_pages }}
             </span>
           {% endif %}
-
           {% if product.metafields.custom.color_for_collection_pages != blank %}
             <span class="color--Metafeilds">
               {{ product.metafields.custom.color_for_collection_pages }}
             </span>
           {% endif %}
+          {%- endcomment -%}
 
           <div 
               class="product-item-meta__price-list-container"
