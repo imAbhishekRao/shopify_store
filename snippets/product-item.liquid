@@ -365,6 +365,8 @@
             </li>
           </div>
 
+          {%- comment -%} Remove product reviews display {% endcomment -%}
+          {%- comment -%}
           {%- if settings.show_product_rating and reduced_content != true -%}
             <a class="product-item-meta__reviews-badge text--small" href="{{ product.url }}" data-instant>
               {%- render 'product-rating', product: product -%}
@@ -376,6 +378,8 @@
             data-rating="{{ product.metafields.loox.avg_rating }}"
             data-raters="{{ product.metafields.loox.num_reviews }}"
           ></div>
+          {%- endcomment -%}
+
           {%- if settings.product_color_display != 'hide' and reduced_content != true -%}
             {%- for color_label in color_label_list -%}
               {% for option_name in product.options %}
