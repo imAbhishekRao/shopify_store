@@ -14,30 +14,7 @@
     reveal
   {% endif %}
 >
-  {%- capture product_labels -%}
-    {%- for tag in product.tags -%}
-      {%- if tag contains '__label' -%}
-        <span class="label label--custom{% if tag contains '__label2' %}2{% endif %}">{{ tag | split: ':' | last }}</span>
-      {%- endif -%}
-    {%- endfor -%}
-
-    {%- unless product.available -%}
-      <span class="label label--subdued">{{ 'collection.product.sold_out' | t }}</span>
-    {%- endunless -%}
-
-    {%- assign cheapest_variant = product.variants | sort: 'price' | first -%}
-
-    {%- if settings.show_discount and product.available and product.price < product.compare_at_price and cheapest_variant.compare_at_price != blank -%}
-      {%- if settings.discount_mode == 'percentage' -%}
-        {%- assign savings = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round | append: '%' -%}
-      {%- else -%}
-        {%- capture savings -%}{{ product.compare_at_price | minus: product.price | money }}{%- endcapture -%}
-      {%- endif -%}
-
-      <span class="label label--highlight">{{ 'collection.product.discount_html' | t: savings: savings }}</span>
-    {%- endif -%}
-  {%- endcapture -%}
-
+  <div class="product-item__mobile-row">
   <div class="product-item__image-wrapper {% if settings.show_secondary_image and product.media.size > 1 and hide_secondary_image != true %}product-item__image-wrapper--multiple{% endif %}">
     {%- if product_labels != blank and reduced_content != true -%}
       <div class="product-item__label-list label-list">
@@ -111,84 +88,6 @@
         -}}
       {%- endif -%}
     </a>
-
-    {%- if show_quick_add and product.available and product.variants.size > 1 -%}
-      <style>
-        .quick-add-form .quick-add-option-label {
-          font-size: 0.97em;
-          font-weight: 500;
-          color: #222;
-          margin-bottom: 0.25em;
-          display: block;
-          letter-spacing: 0.01em;
-        }
-        .quick-add-form .quick-add-option-select {
-          width: 100%;
-          padding: 0.45em 1.2em 0.45em 0.7em;
-          border: 1px solid #e3e3e3;
-          border-radius: 6px;
-          background: #fafbfc;
-          font-size: 1em;
-          color: #222;
-          margin-bottom: 0.25em;
-          appearance: none;
-          -webkit-appearance: none;
-          transition: border 0.2s;
-        }
-        .quick-add-form .quick-add-option-select:focus {
-          border: 1.5px solid #b5b5b5;
-          outline: none;
-          background: #fff;
-        }
-        .quick-add-form .quick-add-dropdown-row {
-          display: flex;
-          gap: 0.7em;
-          margin-bottom: 0.5em;
-        }
-        .quick-add-form .quick-add-dropdown-col {
-          flex: 1;
-        }
-      </style>
-      <form is="product-form" class="quick-add-form" method="post" action="/cart/add" style="margin-bottom: 1em;">
-        <input type="hidden" name="form_type" value="product">
-        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" class="quick-add-variant-id">
-        <span class="quick-add-dropdown-row">
-        {%- for option in product.options_with_values -%}
-          <span class="quick-add-dropdown-col">
-            <label for="quick-add-{{ product.id }}-option{{ forloop.index }}" class="quick-add-option-label">{{ option.name }}</label>
-            <select name="option{{ forloop.index }}" id="quick-add-{{ product.id }}-option{{ forloop.index }}" class="quick-add-option-select">
-              <option value="" disabled selected>Select {{ option.name }}</option>
-              {%- for value in option.values -%}
-                <option value="{{ value | escape }}" {% if value == option.selected_value %}selected{% endif %}>{{ value }}</option>
-              {%- endfor -%}
-            </select>
-          </span>
-        {%- endfor -%}
-        </span>
-        <button type="submit" class="button button--primary button--full" style="margin-top:0.5em;">ADD TO CART</button>
-      </form>
-      <script>
-        (function() {
-          var form = document.currentScript.previousElementSibling;
-          if (!form || !form.classList.contains('quick-add-form')) return;
-          var selects = form.querySelectorAll('.quick-add-option-select');
-          var variantInput = form.querySelector('.quick-add-variant-id');
-          var variants = {{ product.variants | json }};
-          function updateVariantId() {
-            var selectedOptions = Array.from(selects).map(function(select) { return select.value; });
-            var found = variants.find(function(variant) {
-              return variant.options.join() === selectedOptions.join();
-            });
-            if (found) {
-              variantInput.value = found.id;
-            }
-          }
-          selects.forEach(function(select) {
-            select.addEventListener('change', updateVariantId);
-          });
-        })();
-      </script>
-    {%- endif -%}
 
     {%- if request.page_type != 'password'
       and settings.product_add_to_cart
@@ -264,6 +163,7 @@
   </div>
 
   <div class="product-item__info {% if show_cta %}product-item__info--with-button{% endif %} {% if reduced_font_size %}text--small{% endif %}">
+      <div class="product-item__body">
     {%- if product_labels != blank and reduced_content != true -%}
       <div class="product-item__label-list label-list CustomPosiitonBottom">
         {{- product_labels -}}
@@ -303,27 +203,28 @@
       %}
       <a href="{{ product.url }}" data-instant class="product-item-meta__title">{{ product_title }}</a>
 
+          {%- comment -%} Remove product metafield color_for_collection_pages display {% endcomment -%}
+          {%- comment -%}
       {% if product.metafields.custom.color_for_collection_pages != blank %}
         <span class="color--Metafeilds">
           {{ product.metafields.custom.color_for_collection_pages }}
         </span>
       {% endif %}
+      {% if product.metafields.custom.color_for_collection_pages != blank %}
+        <span class="color--Metafeilds">
+          {{ product.metafields.custom.color_for_collection_pages }}
+        </span>
+      {% endif %}
+          {%- endcomment -%}
 
-    {% if product.metafields.custom.color_for_collection_pages != blank %}
-      <span class="color--Metafeilds">
-        {{ product.metafields.custom.color_for_collection_pages }}
-      </span>
-    {% endif %}
-    
-      
-    <div 
-        class="product-item-meta__price-list-container"
-        data-datora-vid="{{ cheapest_variant.id }}"
-        data-datora-pid="{{ product.id }}"
-        data-datora-spgid="{{ cheapest_variant.selected_selling_plan_allocation.selling_plan_group_id }}"
-        data-datora-tags="{{ product.tags }}"
-        data-datora-price="{{ cheapest_variant.price }}"
-       >
+      <div 
+          class="product-item-meta__price-list-container"
+          data-datora-vid="{{ cheapest_variant.id }}"
+          data-datora-pid="{{ product.id }}"
+          data-datora-spgid="{{ cheapest_variant.selected_selling_plan_allocation.selling_plan_group_id }}"
+          data-datora-tags="{{ product.tags }}"
+          data-datora-price="{{ cheapest_variant.price }}"
+         >
         <div class="price-list price-list--centered">
           {%- if product.price_varies and product.compare_at_price -%}
             {%- assign cheapest_variant = product.variants | sort: 'price' | first -%}
@@ -464,6 +365,8 @@
         </li>
       </div>
 
+          {%- comment -%} Remove product reviews display {% endcomment -%}
+          {%- comment -%}
       {%- if settings.show_product_rating and reduced_content != true -%}
         <a class="product-item-meta__reviews-badge text--small" href="{{ product.url }}" data-instant>
           {%- render 'product-rating', product: product -%}
@@ -475,6 +378,8 @@
         data-rating="{{ product.metafields.loox.avg_rating }}"
         data-raters="{{ product.metafields.loox.num_reviews }}"
       ></div>
+          {%- endcomment -%}
+
       {%- if settings.product_color_display != 'hide' and reduced_content != true -%}
         {%- for color_label in color_label_list -%}
           {% for option_name in product.options %}
@@ -549,7 +454,7 @@
         {%- endfor -%}
       {%- endif -%}
     </div>
-
+      </div>
     {%- if product.available and reduced_content or show_cta -%}
       <div class="product-item__cta-wrapper">
         {%- if product.variants.size == 1 -%}
@@ -610,5 +515,98 @@
         <span class="product-item__link text--subdued">{{ 'collection.product.sold_out' | t }}</span>
       </div>
     {%- endif -%}
+    </div>
   </div>
+
+  {%- if show_quick_add and product.available and product.variants.size > 1 -%}
+    <style>
+      .quick-add-form .quick-add-option-label {
+        font-size: 0.97em;
+        font-weight: 500;
+        color: #222;
+        margin-bottom: 0.25em;
+        display: block;
+        letter-spacing: 0.01em;
+      }
+      .quick-add-form .quick-add-option-select {
+        width: 100%;
+        padding: 0.45em 1.2em 0.45em 0.7em;
+        border: 1px solid #e3e3e3;
+        border-radius: 6px;
+        background: #fafbfc;
+        font-size: 1em;
+        color: #222;
+        margin-bottom: 0.25em;
+        appearance: none;
+        -webkit-appearance: none;
+        transition: border 0.2s;
+      }
+      .quick-add-form .quick-add-option-select:focus {
+        border: 1.5px solid #b5b5b5;
+        outline: none;
+        background: #fff;
+      }
+      .quick-add-form .quick-add-dropdown-row {
+        display: flex;
+        gap: 0.7em;
+        margin-bottom: 0.5em;
+      }
+      .quick-add-form .quick-add-dropdown-col {
+        flex: 1;
+      }
+      /* Mobile styles: always show dropdowns, stack product cards vertically */
+      @media (max-width: 700px) {
+        .product-list__inner.product-list__inner--scroller {
+          flex-direction: column !important;
+          display: flex !important;
+          overflow-x: visible !important;
+          gap: 1.5em;
+        }
+        .product-item {
+          min-width: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+      }
+    </style>
+    <form is="product-form" class="quick-add-form" method="post" action="/cart/add" style="margin-bottom: 1em;">
+      <input type="hidden" name="form_type" value="product">
+      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" class="quick-add-variant-id">
+      <span class="quick-add-dropdown-row">
+      {%- for option in product.options_with_values -%}
+        <span class="quick-add-dropdown-col">
+          <label for="quick-add-{{ product.id }}-option{{ forloop.index }}" class="quick-add-option-label">{{ option.name }}</label>
+          <select name="option{{ forloop.index }}" id="quick-add-{{ product.id }}-option{{ forloop.index }}" class="quick-add-option-select">
+            <option value="" disabled selected>Select {{ option.name }}</option>
+            {%- for value in option.values -%}
+              <option value="{{ value | escape }}" {% if value == option.selected_value %}selected{% endif %}>{{ value }}</option>
+            {%- endfor -%}
+          </select>
+        </span>
+      {%- endfor -%}
+      </span>
+      <button type="submit" class="button button--primary button--full" style="margin-top:0.5em;">ADD TO CART</button>
+    </form>
+    <script>
+      (function() {
+        var form = document.currentScript.previousElementSibling;
+        if (!form || !form.classList.contains('quick-add-form')) return;
+        var selects = form.querySelectorAll('.quick-add-option-select');
+        var variantInput = form.querySelector('.quick-add-variant-id');
+        var variants = {{ product.variants | json }};
+        function updateVariantId() {
+          var selectedOptions = Array.from(selects).map(function(select) { return select.value; });
+          var found = variants.find(function(variant) {
+            return variant.options.join() === selectedOptions.join();
+          });
+          if (found) {
+            variantInput.value = found.id;
+          }
+        }
+        selects.forEach(function(select) {
+          select.addEventListener('change', updateVariantId);
+        });
+      })();
+    </script>
+  {%- endif -%}
 </product-item>
