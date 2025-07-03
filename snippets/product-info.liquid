@@ -165,7 +165,6 @@
       </div>
 
       <div class="product-meta__label-list label-list" data-product-label-list>
-        {%- comment -%}
         {%- assign stock_count = product.selected_or_first_available_variant.inventory_quantity -%}
         {%- if stock_count > 20 -%}
           <div class="product-meta__stock-success" style="color: #28a745; font-weight: bold;">
@@ -176,7 +175,6 @@
             Out of Stock
           </div>
         {%- endif -%}
-        {%- endcomment -%}
         {%- unless product.selected_or_first_available_variant.available -%}
           <span class="label label--subdued">{{ 'collection.product.sold_out' | t }}</span>
         {%- elsif product.selected_or_first_available_variant.compare_at_price
