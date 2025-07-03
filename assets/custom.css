@@ -2390,3 +2390,20 @@ body.new-big-redesign-ab-test .product--image-and-size-details .product--size-de
     max-width: 60%;
   }
 }
+
+@media screen and (min-width: 750px) {
+  .product-item {
+    height: 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: stretch;
+    box-sizing: border-box;
+  }
+  .product-item__info .product-item-meta__title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+}
