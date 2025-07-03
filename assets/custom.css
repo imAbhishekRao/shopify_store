@@ -2398,7 +2398,8 @@ body.new-big-redesign-ab-test .product--image-and-size-details .product--size-de
     justify-content: stretch;
     align-items: stretch;
     box-sizing: border-box;
-    /* height: 420px;  Remove fixed height for natural card height */
+    min-height: 480px;
+    max-height: 520px;
   }
   .product-item__info {
     display: flex;
@@ -2407,6 +2408,8 @@ body.new-big-redesign-ab-test .product--image-and-size-details .product--size-de
   }
   .product-item__body {
     flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
   }
   .product-item__cta-wrapper {
     margin-top: auto;
