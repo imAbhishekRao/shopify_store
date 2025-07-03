@@ -2398,8 +2398,8 @@ body.new-big-redesign-ab-test .product--image-and-size-details .product--size-de
     justify-content: stretch;
     align-items: stretch;
     box-sizing: border-box;
-    min-height: 480px;
-    max-height: 520px;
+    /* min-height: 480px; */
+    /* max-height: 520px; */
   }
   .product-item__info {
     display: flex;
