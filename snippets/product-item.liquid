@@ -163,102 +163,170 @@
     </div>
 
     <div class="product-item__info {% if show_cta %}product-item__info--with-button{% endif %} {% if reduced_font_size %}text--small{% endif %}">
-      {%- if product_labels != blank and reduced_content != true -%}
-        <div class="product-item__label-list label-list CustomPosiitonBottom">
-          {{- product_labels -}}
-        </div>
-      {%- endif -%}
-
-      <div class="product-item-meta">
-        {%- if settings.show_vendor -%}
-          {%- assign vendor_handle = product.vendor | handle -%}
-          {%- assign collection_for_vendor = collections[vendor_handle] -%}
-
-          {%- unless collection_for_vendor.empty? -%}
-            <a
-              class="product-item-meta__vendor heading heading--xsmall"
-              href="{{ collection_for_vendor.url }}"
-              data-instant
-            >
-              {{- product.vendor -}}
-            </a>
-          {%- else -%}
-            <a
-              class="product-item-meta__vendor heading heading--xsmall"
-              href="{{ product.vendor | url_for_vendor }}"
-              data-instant
-            >
-              {{- product.vendor -}}
-            </a>
-          {%- endunless -%}
+      <div class="product-item__body">
+        {%- if product_labels != blank and reduced_content != true -%}
+          <div class="product-item__label-list label-list CustomPosiitonBottom">
+            {{- product_labels -}}
+          </div>
         {%- endif -%}
 
-        {% liquid
-          assign compared_product_title = product.title | split: '(#2)' | last | append: '(#2)'
-          assign product_title = product.title
-          if product.title == compared_product_title
-            assign product_title = product_title | remove_last: '(#2)'
-          endif
-        %}
-        <a href="{{ product.url }}" data-instant class="product-item-meta__title">{{ product_title }}</a>
+        <div class="product-item-meta">
+          {%- if settings.show_vendor -%}
+            {%- assign vendor_handle = product.vendor | handle -%}
+            {%- assign collection_for_vendor = collections[vendor_handle] -%}
 
-        {% if product.metafields.custom.color_for_collection_pages != blank %}
-          <span class="color--Metafeilds">
-            {{ product.metafields.custom.color_for_collection_pages }}
-          </span>
-        {% endif %}
+            {%- unless collection_for_vendor.empty? -%}
+              <a
+                class="product-item-meta__vendor heading heading--xsmall"
+                href="{{ collection_for_vendor.url }}"
+                data-instant
+              >
+                {{- product.vendor -}}
+              </a>
+            {%- else -%}
+              <a
+                class="product-item-meta__vendor heading heading--xsmall"
+                href="{{ product.vendor | url_for_vendor }}"
+                data-instant
+              >
+                {{- product.vendor -}}
+              </a>
+            {%- endunless -%}
+          {%- endif -%}
 
-        {% if product.metafields.custom.color_for_collection_pages != blank %}
-          <span class="color--Metafeilds">
-            {{ product.metafields.custom.color_for_collection_pages }}
-          </span>
-        {% endif %}
+          {% liquid
+            assign compared_product_title = product.title | split: '(#2)' | last | append: '(#2)'
+            assign product_title = product.title
+            if product.title == compared_product_title
+              assign product_title = product_title | remove_last: '(#2)'
+            endif
+          %}
+          <a href="{{ product.url }}" data-instant class="product-item-meta__title">{{ product_title }}</a>
 
-        <div 
-            class="product-item-meta__price-list-container"
-            data-datora-vid="{{ cheapest_variant.id }}"
-            data-datora-pid="{{ product.id }}"
-            data-datora-spgid="{{ cheapest_variant.selected_selling_plan_allocation.selling_plan_group_id }}"
-            data-datora-tags="{{ product.tags }}"
-            data-datora-price="{{ cheapest_variant.price }}"
-           >
-          <div class="price-list price-list--centered">
-            {%- if product.price_varies and product.compare_at_price -%}
-              {%- assign cheapest_variant = product.variants | sort: 'price' | first -%}
+          {% if product.metafields.custom.color_for_collection_pages != blank %}
+            <span class="color--Metafeilds">
+              {{ product.metafields.custom.color_for_collection_pages }}
+            </span>
+          {% endif %}
 
-              {%- capture price_min -%}
-                {%- if settings.currency_code_enabled -%}
-                  {{- cheapest_variant.price | money_with_currency -}}
+          {% if product.metafields.custom.color_for_collection_pages != blank %}
+            <span class="color--Metafeilds">
+              {{ product.metafields.custom.color_for_collection_pages }}
+            </span>
+          {% endif %}
+
+          <div 
+              class="product-item-meta__price-list-container"
+              data-datora-vid="{{ cheapest_variant.id }}"
+              data-datora-pid="{{ product.id }}"
+              data-datora-spgid="{{ cheapest_variant.selected_selling_plan_allocation.selling_plan_group_id }}"
+              data-datora-tags="{{ product.tags }}"
+              data-datora-price="{{ cheapest_variant.price }}"
+             >
+            <div class="price-list price-list--centered">
+              {%- if product.price_varies and product.compare_at_price -%}
+                {%- assign cheapest_variant = product.variants | sort: 'price' | first -%}
+
+                {%- capture price_min -%}
+                  {%- if settings.currency_code_enabled -%}
+                    {{- cheapest_variant.price | money_with_currency -}}
+                  {%- else -%}
+                    {{- cheapest_variant.price | money -}}
+                  {%- endif -%}
+                {%- endcapture -%}
+
+                {%- if cheapest_variant.price < cheapest_variant.compare_at_price -%}
+
+                  {% comment %} for products ON SALE & Varying Prices - Ab €34,99 <s>€44,99</s> {% endcomment %}
+
+                  <span class="price price--highlight">
+                    <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
+                    {{- 'collection.product.from_price_html' | t: price_min: price_min -}}
+                  </span>
+
+                  <span class="price price--compare">
+                    <span class="visually-hidden">{{ 'product.general.regular_price' | t }}</span>
+
+                    {%- if settings.currency_code_enabled -%}
+                      {{- cheapest_variant.compare_at_price | money_with_currency -}}
+                    {%- else -%}
+                      {{- cheapest_variant.compare_at_price | money -}}
+                    {%- endif -%}
+                  </span>
                 {%- else -%}
-                  {{- cheapest_variant.price | money -}}
+                  {% comment %} This is when compare price is simply set, but NOT GREATER than price {% endcomment %}
+                  {% comment %} for products with varying Prices - Ab €34,99 {% endcomment %}
+
+                  <span class="price" data-datora-classes="price price--highlight">
+                    <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
+                    {{- 'collection.product.from_price_html' | t: price_min: price_min -}}
+                  </span>
+
+                  <span class="hidden" data-datora-classes="price price--compare">
+                    <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
+                    <span></span>
+                  </span>
                 {%- endif -%}
-              {%- endcapture -%}
-
-              {%- if cheapest_variant.price < cheapest_variant.compare_at_price -%}
-
-                {% comment %} for products ON SALE & Varying Prices - Ab €34,99 <s>€44,99</s> {% endcomment %}
+              {%- elsif product.price < product.compare_at_price -%}
+                {% comment %} for products ON SALE & static price - €34,99 <s>€44,99</s> {% endcomment %}
 
                 <span class="price price--highlight">
                   <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
-                  {{- 'collection.product.from_price_html' | t: price_min: price_min -}}
+
+                  {%- if settings.currency_code_enabled -%}
+                    {{- product.price | money_with_currency -}}
+                  {%- else -%}
+                    {{- product.price | money -}}
+                  {%- endif -%}
                 </span>
 
                 <span class="price price--compare">
                   <span class="visually-hidden">{{ 'product.general.regular_price' | t }}</span>
-
                   {%- if settings.currency_code_enabled -%}
-                    {{- cheapest_variant.compare_at_price | money_with_currency -}}
+                    {{- product.compare_at_price | money_with_currency -}}
                   {%- else -%}
-                    {{- cheapest_variant.compare_at_price | money -}}
+                    {{- product.compare_at_price | money -}}
                   {%- endif -%}
                 </span>
-              {%- else -%}
-                {% comment %} This is when compare price is simply set, but NOT GREATER than price {% endcomment %}
-                {% comment %} for products with varying Prices - Ab €34,99 {% endcomment %}
+              {%- elsif product.price_varies -%}
+                {% comment %} for products with varying price - Ab €34,99 {% endcomment %}
+
+                {%- capture price_min -%}
+                  {%- if settings.currency_code_enabled -%}
+                    {{ product.price_min | money_with_currency }}
+                  {%- else -%}
+                    {{ product.price_min | money }}
+                  {%- endif -%}
+                {%- endcapture -%}
+
+                {%- capture price_max -%}
+                  {%- if settings.currency_code_enabled -%}
+                    {{- product.price_max | money_with_currency -}}
+                  {%- else -%}
+                    {{- product.price_max | money -}}
+                  {%- endif -%}
+                {%- endcapture -%}
 
                 <span class="price" data-datora-classes="price price--highlight">
                   <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
-                  {{- 'collection.product.from_price_html' | t: price_min: price_min -}}
+                  {{- 'collection.product.from_price_html' | t: price_min: price_min, price_max: price_max -}}
+                </span>
+
+                <span class="hidden" data-datora-classes="price price--compare">
+                  <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
+                  <span></span>
+                </span>
+              {%- else -%}
+                {% comment %} for products with static price - €34,99 {% endcomment %}
+
+                <span class="price" data-datora-classes="price price--highlight">
+                  <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
+
+                  {%- if settings.currency_code_enabled -%}
+                    {{- product.price | money_with_currency -}}
+                  {%- else -%}
+                    {{- product.price | money -}}
+                  {%- endif -%}
                 </span>
 
                 <span class="hidden" data-datora-classes="price price--compare">
@@ -266,188 +334,121 @@
                   <span></span>
                 </span>
               {%- endif -%}
-            {%- elsif product.price < product.compare_at_price -%}
-              {% comment %} for products ON SALE & static price - €34,99 <s>€44,99</s> {% endcomment %}
 
-              <span class="price price--highlight">
-                <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
-
-                {%- if settings.currency_code_enabled -%}
-                  {{- product.price | money_with_currency -}}
-                {%- else -%}
-                  {{- product.price | money -}}
-                {%- endif -%}
-              </span>
-
-              <span class="price price--compare">
-                <span class="visually-hidden">{{ 'product.general.regular_price' | t }}</span>
-                {%- if settings.currency_code_enabled -%}
-                  {{- product.compare_at_price | money_with_currency -}}
-                {%- else -%}
-                  {{- product.compare_at_price | money -}}
-                {%- endif -%}
-              </span>
-            {%- elsif product.price_varies -%}
-              {% comment %} for products with varying price - Ab €34,99 {% endcomment %}
-
-              {%- capture price_min -%}
-                {%- if settings.currency_code_enabled -%}
-                  {{ product.price_min | money_with_currency }}
-                {%- else -%}
-                  {{ product.price_min | money }}
-                {%- endif -%}
-              {%- endcapture -%}
-
-              {%- capture price_max -%}
-                {%- if settings.currency_code_enabled -%}
-                  {{- product.price_max | money_with_currency -}}
-                {%- else -%}
-                  {{- product.price_max | money -}}
-                {%- endif -%}
-              {%- endcapture -%}
-
-              <span class="price" data-datora-classes="price price--highlight">
-                <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
-                {{- 'collection.product.from_price_html' | t: price_min: price_min, price_max: price_max -}}
-              </span>
-
-              <span class="hidden" data-datora-classes="price price--compare">
-                <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
-                <span></span>
-              </span>
-            {%- else -%}
-              {% comment %} for products with static price - €34,99 {% endcomment %}
-
-              <span class="price" data-datora-classes="price price--highlight">
-                <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
-
-                {%- if settings.currency_code_enabled -%}
-                  {{- product.price | money_with_currency -}}
-                {%- else -%}
-                  {{- product.price | money -}}
-                {%- endif -%}
-              </span>
-
-              <span class="hidden" data-datora-classes="price price--compare">
-                <span class="visually-hidden">{{ 'product.general.sale_price' | t }}</span>
-                <span></span>
-              </span>
-            {%- endif -%}
-
-            {%- if product.selected_or_first_available_variant.unit_price_measurement -%}
-              <div class="price price--block text--xsmall text--subdued">
-                <div class="unit-price-measurement">
-                  <span class="unit-price-measurement__price">
-                    {{- product.selected_or_first_available_variant.unit_price | money -}}
-                  </span>
-                  <span class="unit-price-measurement__separator">/</span>
-
-                  {%- if product.selected_or_first_available_variant.unit_price_measurement.reference_value != 1 -%}
-                    <span class="unit-price-measurement__reference-value">
-                      {{- product.selected_or_first_available_variant.unit_price_measurement.reference_value -}}
+              {%- if product.selected_or_first_available_variant.unit_price_measurement -%}
+                <div class="price price--block text--xsmall text--subdued">
+                  <div class="unit-price-measurement">
+                    <span class="unit-price-measurement__price">
+                      {{- product.selected_or_first_available_variant.unit_price | money -}}
                     </span>
-                  {%- endif -%}
+                    <span class="unit-price-measurement__separator">/</span>
 
-                  <span class="unit-price-measurement__reference-unit">
-                    {{- product.selected_or_first_available_variant.unit_price_measurement.reference_unit -}}
-                  </span>
-                </div>
-              </div>
-            {%- endif -%}
-          </div>
-          <br />
-          <li hidden class="datora discount-badge">
-             {%- render 'icon' with 'discount-badge' -%}
-             <span data-datora></span>
-          </li>
-        </div>
+                    {%- if product.selected_or_first_available_variant.unit_price_measurement.reference_value != 1 -%}
+                      <span class="unit-price-measurement__reference-value">
+                        {{- product.selected_or_first_available_variant.unit_price_measurement.reference_value -}}
+                      </span>
+                    {%- endif -%}
 
-        {%- if settings.show_product_rating and reduced_content != true -%}
-          <a class="product-item-meta__reviews-badge text--small" href="{{ product.url }}" data-instant>
-            {%- render 'product-rating', product: product -%}
-          </a>
-        {%- endif -%}
-        <div
-          class="loox-rating"
-          data-id="{{ product.id }}"
-          data-rating="{{ product.metafields.loox.avg_rating }}"
-          data-raters="{{ product.metafields.loox.num_reviews }}"
-        ></div>
-        {%- if settings.product_color_display != 'hide' and reduced_content != true -%}
-          {%- for color_label in color_label_list -%}
-            {% for option_name in product.options %}
-              {% assign option_name_down = option_name | downcase %}
-              {% if option_name_down contains color_label %}
-                {% assign color_option_label = option_name %}
-                {% break %}
-              {% endif %}
-            {% endfor %}
-            {%- if product.options_by_name[color_option_label] != blank -%}
-              {%- assign product_option = product.options_by_name[color_option_label] -%}
-
-              {%- case settings.product_color_display -%}
-                {%- when 'count' -%}
-                  <p class="product-item-meta__color-count text--small text--subdued">
-                    {{- 'collection.product.available_colors_count' | t: count: product_option.values.size -}}
-                  </p>
-
-                {%- when 'swatch' -%}
-                  <div class="product-item-meta__swatch-list color-swatch-list color-swatch-list--mini">
-                    {%- assign variant_option = 'option' | append: product_option.position -%}
-                    {%- assign color_swatch_config = settings.color_swatch_config | newline_to_br | split: '<br />' -%}
-
-                    {%- capture color_name -%}{{ section.id }}-{{ block.id }}-{{ product.id }}{%- endcapture -%}
-
-                    {%- for value in product_option.values -%}
-                      {%- capture color_id -%}{{ color_name }}-{{ forloop.index }}{%- endcapture -%}
-                      {%- assign color_value_downcase = value | downcase -%}
-                      {%- assign variant_for_value = product.variants | where: variant_option, value | first -%}
-
-                      {% assign flag = true %}
-                      {% assign variants_for_value = product.variants | where: variant_option, value %}
-                      {% for each_variant in variants_for_value %}
-                        {% if each_variant.metafields.custom.hidden_on_storefront_variant_option != true %}
-                          {% assign flag = false %}
-                          {% break %}
-                        {% endif %}
-                      {% endfor %}
-                      {% if flag == true %}
-                        {% continue %}
-                      {% endif %}
-
-                      <div class="color-swatch {% if color_white_label == color_value_downcase %}color-swatch--white{% endif %}">
-                        <input
-                          class="color-swatch__radio visually-hidden"
-                          type="radio"
-                          name="{{ color_name }}"
-                          id="{{ color_id }}"
-                          value="{{ value | escape }}"
-                          {% if product_option.selected_value == value %}
-                            checked="checked"
-                          {% endif %}
-                          data-variant-id="{{ variant_for_value.id }}"
-                          {% if variant_for_value.featured_media %}
-                            data-variant-featured-media="{{ variant_for_value.featured_media.id }}"
-                          {% endif %}
-                        >
-                        <label
-                          class="color-swatch__item"
-                          for="{{ color_id }}"
-                          style="{% render 'color-swatch-style', color_swatch_config: color_swatch_config, value: value %}"
-                        >
-                          <span class="visually-hidden">{{ value }}</span>
-                        </label>
-                      </div>
-                    {%- endfor -%}
+                    <span class="unit-price-measurement__reference-unit">
+                      {{- product.selected_or_first_available_variant.unit_price_measurement.reference_unit -}}
+                    </span>
                   </div>
-              {%- endcase -%}
+                </div>
+              {%- endif -%}
+            </div>
+            <br />
+            <li hidden class="datora discount-badge">
+               {%- render 'icon' with 'discount-badge' -%}
+               <span data-datora></span>
+            </li>
+          </div>
 
-              {%- break -%}
-            {%- endif -%}
-          {%- endfor -%}
-        {%- endif -%}
+          {%- if settings.show_product_rating and reduced_content != true -%}
+            <a class="product-item-meta__reviews-badge text--small" href="{{ product.url }}" data-instant>
+              {%- render 'product-rating', product: product -%}
+            </a>
+          {%- endif -%}
+          <div
+            class="loox-rating"
+            data-id="{{ product.id }}"
+            data-rating="{{ product.metafields.loox.avg_rating }}"
+            data-raters="{{ product.metafields.loox.num_reviews }}"
+          ></div>
+          {%- if settings.product_color_display != 'hide' and reduced_content != true -%}
+            {%- for color_label in color_label_list -%}
+              {% for option_name in product.options %}
+                {% assign option_name_down = option_name | downcase %}
+                {% if option_name_down contains color_label %}
+                  {% assign color_option_label = option_name %}
+                  {% break %}
+                {% endif %}
+              {% endfor %}
+              {%- if product.options_by_name[color_option_label] != blank -%}
+                {%- assign product_option = product.options_by_name[color_option_label] -%}
+
+                {%- case settings.product_color_display -%}
+                  {%- when 'count' -%}
+                    <p class="product-item-meta__color-count text--small text--subdued">
+                      {{- 'collection.product.available_colors_count' | t: count: product_option.values.size -}}
+                    </p>
+
+                  {%- when 'swatch' -%}
+                    <div class="product-item-meta__swatch-list color-swatch-list color-swatch-list--mini">
+                      {%- assign variant_option = 'option' | append: product_option.position -%}
+                      {%- assign color_swatch_config = settings.color_swatch_config | newline_to_br | split: '<br />' -%}
+
+                      {%- capture color_name -%}{{ section.id }}-{{ block.id }}-{{ product.id }}{%- endcapture -%}
+
+                      {%- for value in product_option.values -%}
+                        {%- capture color_id -%}{{ color_name }}-{{ forloop.index }}{%- endcapture -%}
+                        {%- assign color_value_downcase = value | downcase -%}
+                        {%- assign variant_for_value = product.variants | where: variant_option, value | first -%}
+
+                        {% assign flag = true %}
+                        {% assign variants_for_value = product.variants | where: variant_option, value %}
+                        {% for each_variant in variants_for_value %}
+                          {% if each_variant.metafields.custom.hidden_on_storefront_variant_option != true %}
+                            {% assign flag = false %}
+                            {% break %}
+                          {% endif %}
+                        {% endfor %}
+                        {% if flag == true %}
+                          {% continue %}
+                        {% endif %}
+
+                        <div class="color-swatch {% if color_white_label == color_value_downcase %}color-swatch--white{% endif %}">
+                          <input
+                            class="color-swatch__radio visually-hidden"
+                            type="radio"
+                            name="{{ color_name }}"
+                            id="{{ color_id }}"
+                            value="{{ value | escape }}"
+                            {% if product_option.selected_value == value %}
+                              checked="checked"
+                            {% endif %}
+                            data-variant-id="{{ variant_for_value.id }}"
+                            {% if variant_for_value.featured_media %}
+                              data-variant-featured-media="{{ variant_for_value.featured_media.id }}"
+                            {% endif %}
+                          >
+                          <label
+                            class="color-swatch__item"
+                            for="{{ color_id }}"
+                            style="{% render 'color-swatch-style', color_swatch_config: color_swatch_config, value: value %}"
+                          >
+                            <span class="visually-hidden">{{ value }}</span>
+                          </label>
+                        </div>
+                      {%- endfor -%}
+                    </div>
+                {%- endcase -%}
+
+                {%- break -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
       </div>
-
       {%- if product.available and reduced_content or show_cta -%}
         <div class="product-item__cta-wrapper">
           {%- if product.variants.size == 1 -%}
