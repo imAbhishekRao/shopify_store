@@ -788,7 +788,10 @@
 
               <product-payment-container js-pdp-submit-btn form-id="{{ product_form_id }}" {% if update_url %}id="MainPaymentContainer"{% endif %} class="{% if product.selected_or_first_available_variant.metafields.custom.new_variant_not_for_sale == true %}hide{% endif %} product-form__payment-container" {{ block.shopify_attributes }}>
                 {%- comment -%} Custom: treat variants with inventory < 20 as unavailable {%- endcomment -%}
-                {% assign custom_available = product.selected_or_first_available_variant.available and product.selected_or_first_available_variant.inventory_quantity >= 20 %}
+                {% assign custom_available = false %}
+                {% if product.selected_or_first_available_variant.available and product.selected_or_first_available_variant.inventory_quantity >= 20 %}
+                  {% assign custom_available = true %}
+                {% endif %}
                 <button id="AddToCart" type="submit" is="loader-button" {% unless block.settings.show_payment_button and template.suffix != 'quick-buy-popover' %}data-use-primary{% endunless %} data-product-add-to-cart-button data-button-content="{% if product.template_suffix == 'pre-order' %}{{ 'product.form.pre_order' | t | escape }}{% else %}{{ 'product.form.add_to_cart' | t | escape }}{% endif %}" class="product-form__add-button button {% unless custom_available %}button--ternary{% else %}{% if block.settings.show_payment_button and template.suffix != 'quick-buy-popover' %}button--secondary{% else %}button--primary{% endif %}{% endunless %} button--full" {% unless custom_available %}disabled{% endunless %}>
                   {%- if custom_available -%}
                     {%- if product.template_suffix == 'pre-order' -%}
