@@ -626,3 +626,62 @@
     </script>
   {%- endif -%}
 </product-item>
+
+{%- comment -%} MOBILE-ONLY PRODUCT ITEM LAYOUT {%- endcomment -%}
+<div class="mobile-product-item">
+  <div class="mobile-product-item__row">
+    <div class="mobile-product-item__image">
+      {%- comment -%} Reuse image block from above {%- endcomment -%}
+      <a href="{{ product.url }}" data-instant>
+        {%- if product.featured_media -%}
+          {{
+            product.featured_media
+            | image_url: width: 300
+            | image_tag:
+              loading: 'lazy',
+              class: 'mobile-product-item__img',
+              widths: '200,300,400',
+              data-media-id: product.featured_media.id
+          }}
+        {%- endif -%}
+      </a>
+    </div>
+    <div class="mobile-product-item__info">
+      <div class="mobile-product-item__title">{{ product.title }}</div>
+      <div class="mobile-product-item__price">
+        {%- if product.compare_at_price > product.price -%}
+          <span class="mobile-product-item__compare-at">{{ product.compare_at_price | money }}</span>
+        {%- endif -%}
+        <span class="mobile-product-item__current">{{ product.price | money }}</span>
+      </div>
+      {%- comment -%} Swatches (if any) {%- endcomment -%}
+      {%- if settings.product_color_display == 'swatch' and product.options_by_name['Color'] != blank -%}
+        <div class="mobile-product-item__swatches">
+          {%- for color in product.options_by_name['Color'].values -%}
+            <span class="mobile-product-item__swatch" style="background: {{ color | downcase }}"></span>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+  <div class="mobile-product-item__actions">
+    {%- comment -%} Add to cart/variant options (reuse from above) {%- endcomment -%}
+    {%- if product.variants.size == 1 -%}
+      <form method="post" action="/cart/add">
+        <input type="hidden" name="id" value="{{ product.first_available_variant.id }}">
+        <button type="submit" class="mobile-product-item__add-to-cart">{{ 'collection.product.add_to_cart_short' | t }}</button>
+      </form>
+    {%- else -%}
+      <a href="{{ product.url }}" class="mobile-product-item__select-variant">{{ 'products.product.select_options' | t }}</a>
+    {%- endif -%}
+  </div>
+</div>
+
+{%- comment -%} END MOBILE-ONLY PRODUCT ITEM LAYOUT {%- endcomment -%}
+
+{%- comment -%} Add CSS classes to default layout to hide on mobile {%- endcomment -%}
+<div class="desktop-product-item">
+  {%- comment -%} Existing code ... {%- endcomment -%}
+</div>
+
+{%- comment -%} Add CSS classes to hide mobile layout on desktop and vice versa {%- endcomment -%}
