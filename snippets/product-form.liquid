@@ -200,7 +200,11 @@
                           assign name = 'option' | append: option.position
                           assign variant_for_value = product.variants | where: name, value | first
                           assign is_limited_color_option = variant_for_value.metafields.custom.limited_color_swatch_option | default: false
-                          if is_limited_color_option != true
+                          assign custom_unavailable = false
+                          if variant_for_value.inventory_quantity <= 20
+                            assign custom_unavailable = true
+                          endif
+                          if is_limited_color_option == true
                             continue
                           endif
                         %}
@@ -233,10 +237,10 @@
                             endfor
                           endif
                         %}
-                        <div class="color-swatch hb_color-swatch {% if color_white_label == color_value_downcase or color_white_label_2 == color_value_downcase %}color-swatch--white{% endif %}" data-index="{{ forloop.index0 }}">
-                          <input class="color-swatch__radio visually-hidden" type="radio" name="option{{ option.position }}" form="{{ product_form_id }}" id="{{ option_id }}-{{ forloop.index }}" value="{{ value | escape }}" {% if value == option.selected_value %}checked="checked"{% endif %} data-bind-value="{{ option_id }}-value-limited">
+                        <div class="color-swatch hb_color-swatch {% if color_white_label == color_value_downcase or color_white_label_2 == color_value_downcase %}color-swatch--white{% endif %} {% if custom_unavailable %}is-disabled{% endif %}" data-index="{{ forloop.index0 }}">
+                          <input class="color-swatch__radio visually-hidden" type="radio" name="option{{ option.position }}" form="{{ product_form_id }}" id="{{ option_id }}-{{ forloop.index }}" value="{{ value | escape }}" {% if value == option.selected_value %}checked="checked"{% endif %} data-bind-value="{{ option_id }}-value-limited" {% if custom_unavailable %}disabled{% endif %}>
                           <label class="color-swatch__item" for="{{ option_id }}-{{ forloop.index }}" style="{% render 'color-swatch-style', color_swatch_config: color_swatch_config, value: value %}; --text-color: {{ color }};">
-                            <span class="visually-hidden">{{ value }}</span>
+                            <span class="visually-hidden">{{ value }}{% if custom_unavailable %} (Out of Stock){% endif %}</span>
                           </label>
                         </div>
                       {%- endfor -%}
@@ -250,7 +254,11 @@
                                 assign name = 'option' | append: connected_option.position
                                 assign variant_for_value = connected_product.variants | where: name, value | first
                                 assign is_limited_color_option = variant_for_value.metafields.custom.limited_color_swatch_option | default: false
-                                if is_limited_color_option != true
+                                assign custom_unavailable = false
+                                if variant_for_value.inventory_quantity <= 20
+                                  assign custom_unavailable = true
+                                endif
+                                if is_limited_color_option == true
                                   continue
                                 endif
                               %}
@@ -384,6 +392,10 @@
                           assign name = 'option' | append: option.position
                           assign variant_for_value = product.variants | where: name, value | first
                           assign is_limited_color_option = variant_for_value.metafields.custom.limited_color_swatch_option | default: false
+                          assign custom_unavailable = false
+                          if variant_for_value.inventory_quantity <= 20
+                            assign custom_unavailable = true
+                          endif
                           if is_limited_color_option == true
                             continue
                           endif
@@ -424,9 +436,9 @@
                           "
                           data-index="{{ forloop.index0 }}"
                           >
-                          <input class="color-swatch__radio visually-hidden" type="radio" name="option{{ option.position }}" form="{{ product_form_id }}" id="{{ option_id }}-{{ forloop.index }}" value="{{ value | escape }}" {% if value == option.selected_value %}checked="checked"{% endif %} data-bind-value="{{ option_id }}-value">
+                          <input class="color-swatch__radio visually-hidden" type="radio" name="option{{ option.position }}" form="{{ product_form_id }}" id="{{ option_id }}-{{ forloop.index }}" value="{{ value | escape }}" {% if value == option.selected_value %}checked="checked"{% endif %} data-bind-value="{{ option_id }}-value" {% if custom_unavailable %}disabled{% endif %}>
                           <label class="color-swatch__item" for="{{ option_id }}-{{ forloop.index }}" style="{% render 'color-swatch-style', color_swatch_config: color_swatch_config, value: value %}; --text-color: {{ color }};">
-                            <span class="visually-hidden">{{ value }}</span>
+                            <span class="visually-hidden">{{ value }}{% if custom_unavailable %} (Out of Stock){% endif %}</span>
                           </label>
                         </div>
                       {%- endfor -%}
@@ -816,7 +828,7 @@
         {%- endif -%}
 
         <div js-new-variant-registration-form class="new-variant-registration-form {% unless product.selected_or_first_available_variant.metafields.custom.new_variant_not_for_sale == true %}hide{% endunless %}">
-          <div class="{% if product.metafields.custom.klaviyo_form_id != blank %}{{ product.metafields.custom.klaviyo_form_id  }}{% else %}klaviyo-form-QYRkyn{% endif %}"></div>
+          <div {% if product.metafields.custom.klaviyo_form_id != blank %}{{ product.metafields.custom.klaviyo_form_id  }}{% else %}klaviyo-form-QYRkyn{% endif %}"></div>
         </div>
 
         {%- if template.suffix != 'quick-buy-popover' -%}
