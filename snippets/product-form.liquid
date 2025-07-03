@@ -200,11 +200,7 @@
                           assign name = 'option' | append: option.position
                           assign variant_for_value = product.variants | where: name, value | first
                           assign is_limited_color_option = variant_for_value.metafields.custom.limited_color_swatch_option | default: false
-                          assign custom_unavailable = false
-                          if variant_for_value.inventory_quantity < 20
-                            assign custom_unavailable = true
-                          endif
-                          if is_limited_color_option == true
+                          if is_limited_color_option != true
                             continue
                           endif
                         %}
@@ -237,10 +233,10 @@
                             endfor
                           endif
                         %}
-                        <div class="color-swatch hb_color-swatch {% if color_white_label == color_value_downcase or color_white_label_2 == color_value_downcase %}color-swatch--white{% endif %} {% if custom_unavailable %}is-disabled{% endif %}" data-index="{{ forloop.index0 }}">
-                          <input class="color-swatch__radio visually-hidden" type="radio" name="option{{ option.position }}" form="{{ product_form_id }}" id="{{ option_id }}-{{ forloop.index }}" value="{{ value | escape }}" {% if value == option.selected_value %}checked="checked"{% endif %} data-bind-value="{{ option_id }}-value-limited" {% if custom_unavailable %}disabled{% endif %}>
+                        <div class="color-swatch hb_color-swatch {% if color_white_label == color_value_downcase or color_white_label_2 == color_value_downcase %}color-swatch--white{% endif %}" data-index="{{ forloop.index0 }}">
+                          <input class="color-swatch__radio visually-hidden" type="radio" name="option{{ option.position }}" form="{{ product_form_id }}" id="{{ option_id }}-{{ forloop.index }}" value="{{ value | escape }}" {% if value == option.selected_value %}checked="checked"{% endif %} data-bind-value="{{ option_id }}-value-limited">
                           <label class="color-swatch__item" for="{{ option_id }}-{{ forloop.index }}" style="{% render 'color-swatch-style', color_swatch_config: color_swatch_config, value: value %}; --text-color: {{ color }};">
-                            <span class="visually-hidden">{{ value }}{% if custom_unavailable %} (Out of Stock){% endif %}</span>
+                            <span class="visually-hidden">{{ value }}</span>
                           </label>
                         </div>
                       {%- endfor -%}
@@ -254,11 +250,7 @@
                                 assign name = 'option' | append: connected_option.position
                                 assign variant_for_value = connected_product.variants | where: name, value | first
                                 assign is_limited_color_option = variant_for_value.metafields.custom.limited_color_swatch_option | default: false
-                                assign custom_unavailable = false
-                                if variant_for_value.inventory_quantity < 20
-                                  assign custom_unavailable = true
-                                endif
-                                if is_limited_color_option == true
+                                if is_limited_color_option != true
                                   continue
                                 endif
                               %}
@@ -379,74 +371,71 @@
                     </div>
 
                   {%- when 'color' -%}
-                    {% comment %} Limited Edition Colors {% endcomment %}
-                    {% assign limited_color_swatch_count = 0 %}
-                    {% capture limited_color_swatch_list %}
-                      <div class="color-swatch-list">
-                        {%- assign color_swatch_config = settings.color_swatch_config | newline_to_br | split: '<br />' -%}
-                        {%- for value in option.values -%}
-                          {% liquid
-                            assign name = 'option' | append: option.position
-                            assign variant_for_value = product.variants | where: name, value | first
-                            assign is_limited_color_option = variant_for_value.metafields.custom.limited_color_swatch_option | default: false
-                            assign custom_unavailable = false
-                            if variant_for_value.inventory_quantity < 20
-                              assign custom_unavailable = true
-                            endif
-                            if is_limited_color_option == true
-                              continue
-                            endif
-                          %}
-                          {% assign limited_color_swatch_count = limited_color_swatch_count | plus: 1 %}
-                          {%- assign color_value_downcase = value | downcase -%}
-                          <div class="color-swatch hb_color-swatch {% if color_white_label == color_value_downcase or color_white_label_2 == color_value_downcase %}color-swatch--white{% endif %} {% if custom_unavailable %}is-disabled{% endif %}" data-index="{{ forloop.index0 }}">
-                            <input class="color-swatch__radio visually-hidden" type="radio" name="option{{ option.position }}" form="{{ product_form_id }}" id="{{ option_id }}-limited-{{ forloop.index }}" value="{{ value | escape }}" {% if value == option.selected_value %}checked="checked"{% endif %} data-bind-value="{{ option_id }}-value-limited" {% if custom_unavailable %}disabled{% endif %}>
-                            <label class="color-swatch__item" for="{{ option_id }}-limited-{{ forloop.index }}" style="{% render 'color-swatch-style', color_swatch_config: color_swatch_config, value: value %};">
-                              <span class="visually-hidden">{{ value }}{% if custom_unavailable %} (Out of Stock){% endif %}</span>
-                            </label>
-                          </div>
-                        {%- endfor -%}
-                      </div>
-                    {% endcapture %}
-
-                    {% comment %} Normal Colors {% endcomment %}
-                    {% capture normal_color_swatch_list %}
-                      <div class="color-swatch-list">
-                        {%- assign color_swatch_config = settings.color_swatch_config | newline_to_br | split: '<br />' -%}
-                        {%- for value in option.values -%}
-                          {% liquid
-                            assign name = 'option' | append: option.position
-                            assign variant_for_value = product.variants | where: name, value | first
-                            assign is_limited_color_option = variant_for_value.metafields.custom.limited_color_swatch_option | default: false
-                            assign custom_unavailable = false
-                            if variant_for_value.inventory_quantity < 20
-                              assign custom_unavailable = true
-                            endif
-                            if is_limited_color_option == true
-                              continue
-                            endif
-                          %}
-                          {%- assign color_value_downcase = value | downcase -%}
-                          <div class="color-swatch hb_color-swatch {% if color_white_label == color_value_downcase or color_white_label_2 == color_value_downcase %}color-swatch--white{% endif %} {% if custom_unavailable %}is-disabled{% endif %}" data-index="{{ forloop.index0 }}">
-                            <input class="color-swatch__radio visually-hidden" type="radio" name="option{{ option.position }}" form="{{ product_form_id }}" id="{{ option_id }}-{{ forloop.index }}" value="{{ value | escape }}" {% if value == option.selected_value %}checked="checked"{% endif %} data-bind-value="{{ option_id }}-value" {% if custom_unavailable %}disabled{% endif %}>
-                            <label class="color-swatch__item" for="{{ option_id }}-{{ forloop.index }}" style="{% render 'color-swatch-style', color_swatch_config: color_swatch_config, value: value %};">
-                              <span class="visually-hidden">{{ value }}{% if custom_unavailable %} (Out of Stock){% endif %}</span>
-                            </label>
-                          </div>
-                        {%- endfor -%}
-                      </div>
-                    {% endcapture %}
-
-                    {%- if limited_color_swatch_count > 0 -%}
-                      <div class="product-form__option-info">
-                        <span class="product-form__option-name">{{ 'product.general.limited_edition' | t }}</span>
-                        {{ limited_color_swatch_list }}
-                      </div>
-                    {%- endif -%}
-
-                    <div class="product-form__option-info">
-                      <span class="product-form__option-name">{{ option.name }}</span>
-                      {{ normal_color_swatch_list }}
+                    <div class="color-swatch-list">
+                      {%- assign color_swatch_config = settings.color_swatch_config | newline_to_br | split: '<br />' -%}
+                      {% liquid
+                        if product.metafields.custom.connected_product_for_variants_before
+                          assign connected_product = product.metafields.custom.connected_product_for_variants_before.value
+                          render 'extra_variant_color_picker', connected_product: connected_product
+                        endif
+                      %}
+                      {%- for value in option.values -%}
+                        {% liquid
+                          assign name = 'option' | append: option.position
+                          assign variant_for_value = product.variants | where: name, value | first
+                          assign is_limited_color_option = variant_for_value.metafields.custom.limited_color_swatch_option | default: false
+                          if is_limited_color_option == true
+                            continue
+                          endif
+                        %}
+                        {%- assign color_value_downcase = value | downcase -%}
+                        {%  liquid
+                          if colors != blank
+                            assign color = 'black'
+                          elsif image != blank
+                            assign color = 'black'
+                          else
+                            assign color_value_downcase = value | downcase
+                            assign color = color_value_downcase
+                        
+                            for color_swatch_item in color_swatch_config
+                              assign color_swatch_parts = color_swatch_item | split: ':'
+                              assign color_swatch_name = color_swatch_parts.first | downcase | strip
+                        
+                              if color_value_downcase == color_swatch_name
+                                assign color_swatch_value = color_swatch_parts.last | strip
+                        
+                                if color_swatch_value contains '#'
+                                  assign color = color_swatch_value
+                                elsif images[color_swatch_value] != blank
+                                  assign color = 'black'
+                                endif
+                        
+                                break
+                              endif
+                            endfor
+                          endif
+                        %}
+                        <div
+                          class="
+                            color-swatch hb_color-swatch
+                            {% if color_white_label == color_value_downcase or color_white_label_2 == color_value_downcase %} color-swatch--white{% endif %}
+                            {% if color_off_white_label == color_value_downcase %} color-swatch--off-white{% endif %}
+                          "
+                          data-index="{{ forloop.index0 }}"
+                          >
+                          <input class="color-swatch__radio visually-hidden" type="radio" name="option{{ option.position }}" form="{{ product_form_id }}" id="{{ option_id }}-{{ forloop.index }}" value="{{ value | escape }}" {% if value == option.selected_value %}checked="checked"{% endif %} data-bind-value="{{ option_id }}-value">
+                          <label class="color-swatch__item" for="{{ option_id }}-{{ forloop.index }}" style="{% render 'color-swatch-style', color_swatch_config: color_swatch_config, value: value %}; --text-color: {{ color }};">
+                            <span class="visually-hidden">{{ value }}</span>
+                          </label>
+                        </div>
+                      {%- endfor -%}
+                      {% liquid
+                        if product.metafields.custom.connected_product_for_variants_after
+                          assign connected_product = product.metafields.custom.connected_product_for_variants_after.value
+                          render 'extra_variant_color_picker', connected_product: connected_product
+                        endif
+                      %}
                     </div>
 
                   {%- when 'block' -%}
@@ -827,7 +816,7 @@
         {%- endif -%}
 
         <div js-new-variant-registration-form class="new-variant-registration-form {% unless product.selected_or_first_available_variant.metafields.custom.new_variant_not_for_sale == true %}hide{% endunless %}">
-          <div {% if product.metafields.custom.klaviyo_form_id != blank %}{{ product.metafields.custom.klaviyo_form_id  }}{% else %}class="klaviyo-form-QYRkyn"{% endif %}></div>
+          <div class="{% if product.metafields.custom.klaviyo_form_id != blank %}{{ product.metafields.custom.klaviyo_form_id  }}{% else %}klaviyo-form-QYRkyn{% endif %}"></div>
         </div>
 
         {%- if template.suffix != 'quick-buy-popover' -%}
@@ -949,51 +938,4 @@ IMPLEMENTATION NOTE: if during the iteration of the options we have found an opt
 
   {% endfor %}
 
-</script>
-
-{%- for variant in product.variants -%}
-  {%- assign is_low_stock = false -%}
-  {%- if variant.inventory_management and variant.inventory_policy == 'deny' and variant.inventory_quantity < 20 -%}
-    {%- assign is_low_stock = true -%}
-  {%- endif -%}
-  <div id="variant-{{ variant.id }}-stock-status" style="display:none;">
-    {%- if is_low_stock -%}
-      <span class="inventory inventory--low">Out of stock</span>
-    {%- elsif variant.available -%}
-      <span class="inventory inventory--high">{{ 'product.form.in_stock' | t }}</span>
-    {%- else -%}
-      <span class="inventory inventory--low">{{ 'product.form.sold_out' | t }}</span>
-    {%- endif -%}
-  </div>
-{%- endfor -%}
-
-<script>
-(function() {
-  function updateStockStatus() {
-    var select = document.querySelector('[name="id"]');
-    if (!select) return;
-    var selectedId = select.value;
-    var allStatuses = document.querySelectorAll('[id^="variant-"][id$="-stock-status"]');
-    allStatuses.forEach(function(el) { el.style.display = 'none'; });
-    var status = document.getElementById('variant-' + selectedId + '-stock-status');
-    if (status) status.style.display = '';
-    // Disable add to cart if out of stock
-    var addBtn = document.getElementById('AddToCart');
-    var paymentBtn = document.querySelector('.shopify-payment-button button');
-    if (status && status.textContent.includes('Out of stock')) {
-      if (addBtn) addBtn.setAttribute('disabled', 'disabled');
-      if (paymentBtn) paymentBtn.setAttribute('disabled', 'disabled');
-    } else {
-      if (addBtn) addBtn.removeAttribute('disabled');
-      if (paymentBtn) paymentBtn.removeAttribute('disabled');
-    }
-  }
-  document.addEventListener('change', function(e) {
-    if (e.target && e.target.name && e.target.name.startsWith('option')) {
-      setTimeout(updateStockStatus, 10);
-    }
-  });
-  document.addEventListener('DOMContentLoaded', updateStockStatus);
-  setTimeout(updateStockStatus, 100);
-})();
 </script>
