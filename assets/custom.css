@@ -2373,3 +2373,20 @@ body.new-big-redesign-ab-test .product--image-and-size-details .product--size-de
 [js-product-media-id]:not(.active) {
 	display: none;
 }
+
+@media screen and (max-width: 749px) {
+  .product-item__mobile-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .product-item__mobile-row .product-item__image-wrapper {
+    flex: 0 0 40%;
+    max-width: 40%;
+  }
+  .product-item__mobile-row .product-item__info {
+    flex: 1 1 60%;
+    max-width: 60%;
+  }
+}
