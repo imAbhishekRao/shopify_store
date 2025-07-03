@@ -200,7 +200,10 @@
                           assign name = 'option' | append: option.position
                           assign variant_for_value = product.variants | where: name, value | first
                           assign is_limited_color_option = variant_for_value.metafields.custom.limited_color_swatch_option | default: false
-                          assign custom_variant_available = variant_for_value.available and variant_for_value.inventory_quantity >= 20
+                          assign custom_variant_available = false
+                          if variant_for_value.available and variant_for_value.inventory_quantity >= 20
+                            assign custom_variant_available = true
+                          endif
                           if is_limited_color_option == true
                             continue
                           endif
@@ -251,7 +254,10 @@
                                 assign name = 'option' | append: connected_option.position
                                 assign variant_for_value = connected_product.variants | where: name, value | first
                                 assign is_limited_color_option = variant_for_value.metafields.custom.limited_color_swatch_option | default: false
-                                assign custom_variant_available = variant_for_value.available and variant_for_value.inventory_quantity >= 20
+                                assign custom_variant_available = false
+                                if variant_for_value.available and variant_for_value.inventory_quantity >= 20
+                                  assign custom_variant_available = true
+                                endif
                                 if is_limited_color_option != true
                                   continue
                                 endif
@@ -386,7 +392,10 @@
                           assign name = 'option' | append: option.position
                           assign variant_for_value = product.variants | where: name, value | first
                           assign is_limited_color_option = variant_for_value.metafields.custom.limited_color_swatch_option | default: false
-                          assign custom_variant_available = variant_for_value.available and variant_for_value.inventory_quantity >= 20
+                          assign custom_variant_available = false
+                          if variant_for_value.available and variant_for_value.inventory_quantity >= 20
+                            assign custom_variant_available = true
+                          endif
                           if is_limited_color_option == true
                             continue
                           endif
@@ -483,6 +492,14 @@
 
                         <select class="visually-hidden" name="option{{ option.position }}" form="{{ product_form_id }}" data-bind-value="{{ option_id }}-value" aria-label="{{ option.name | escape }}">
                           {%- for value in option.values -%}
+                            {% liquid
+                              assign name = 'option' | append: option.position
+                              assign variant_for_value = product.variants | where: name, value | first
+                              assign custom_variant_available = false
+                              if variant_for_value.available and variant_for_value.inventory_quantity >= 20
+                                assign custom_variant_available = true
+                              endif
+                            %}
                             <option value="{{ value | escape }}" {% if value == option.selected_value %}selected{% endif %} {% unless custom_variant_available %}disabled{% endunless %}>{{ value }}{% unless custom_variant_available %} ({{ 'product.form.sold_out' | t }}){% endunless %}</option>
                           {%- endfor -%}
                         </select>
