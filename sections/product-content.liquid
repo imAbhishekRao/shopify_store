@@ -298,8 +298,16 @@
                   {% continue %}
                 {% endif %}
                 
-                {%- comment -%}Only show products that are completely available{%- endcomment -%}
-                {%- if product.available -%}
+                {%- comment -%}Only show products where ALL variants are available{%- endcomment -%}
+                {%- assign all_variants_available = true -%}
+                {%- for variant in product.variants -%}
+                  {%- unless variant.available -%}
+                    {%- assign all_variants_available = false -%}
+                    {%- break -%}
+                  {%- endunless -%}
+                {%- endfor -%}
+                
+                {%- if all_variants_available -%}
                   {%- render 'product-item', product: product, reduced_content: true, reduced_font_size: true, sizes_attribute: '(max-width: 740px) 105px, 215px' -%}
                 {%- endif -%}
               {%- endfor -%}

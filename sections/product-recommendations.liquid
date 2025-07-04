@@ -70,8 +70,16 @@
                   {% continue %}
                 {% endif %}
                 
-                {%- comment -%}Only show products that are completely available{%- endcomment -%}
-                {%- unless product.available -%}
+                {%- comment -%}Only show products where ALL variants are available{%- endcomment -%}
+                {%- assign all_variants_available = true -%}
+                {%- for variant in product.variants -%}
+                  {%- unless variant.available -%}
+                    {%- assign all_variants_available = false -%}
+                    {%- break -%}
+                  {%- endunless -%}
+                {%- endfor -%}
+                
+                {%- unless all_variants_available -%}
                   {%- continue -%}
                 {%- endunless -%}
                 

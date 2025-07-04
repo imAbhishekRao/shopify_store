@@ -50,8 +50,16 @@
               {%- assign matching_product = cart.items | where: 'product_id', product.id -%}
 
               {%- if matching_product.size == 0 -%}
-                {%- comment -%}Only show products that are completely available{%- endcomment -%}
-                {%- if product.available -%}
+                {%- comment -%}Only show products where ALL variants are available{%- endcomment -%}
+                {%- assign all_variants_available = true -%}
+                {%- for variant in product.variants -%}
+                  {%- unless variant.available -%}
+                    {%- assign all_variants_available = false -%}
+                    {%- break -%}
+                  {%- endunless -%}
+                {%- endfor -%}
+                
+                {%- if all_variants_available -%}
                   {%- assign shown_products_count = shown_products_count | plus: 1 -%}
                   {%- assign largest_image_aspect_ratio = largest_image_aspect_ratio | at_most: product.featured_media.aspect_ratio -%}
 

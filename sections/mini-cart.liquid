@@ -347,7 +347,18 @@
             {%- assign matching_product = cart.items | where: 'product_id', product.id | first -%}
 
             {%- if matching_product == blank -%}
-              {%- assign acceptable_recommendations_count = acceptable_recommendations_count | plus: 1 -%}
+              {%- comment -%}Only count products where ALL variants are available{%- endcomment -%}
+              {%- assign all_variants_available = true -%}
+              {%- for variant in product.variants -%}
+                {%- unless variant.available -%}
+                  {%- assign all_variants_available = false -%}
+                  {%- break -%}
+                {%- endunless -%}
+              {%- endfor -%}
+              
+              {%- if all_variants_available -%}
+                {%- assign acceptable_recommendations_count = acceptable_recommendations_count | plus: 1 -%}
+              {%- endif -%}
             {%- endif -%}
           {%- endfor -%}
 
@@ -375,8 +386,16 @@
                         {%- assign matching_product = cart.items | where: 'product_id', product.id -%}
 
                         {%- if matching_product.size == 0 -%}
-                          {%- comment -%}Only show products that are completely available{%- endcomment -%}
-                          {%- if product.available -%}
+                          {%- comment -%}Only show products where ALL variants are available{%- endcomment -%}
+                          {%- assign all_variants_available = true -%}
+                          {%- for variant in product.variants -%}
+                            {%- unless variant.available -%}
+                              {%- assign all_variants_available = false -%}
+                              {%- break -%}
+                            {%- endunless -%}
+                          {%- endfor -%}
+                          
+                          {%- if all_variants_available -%}
                             {%- assign shown_products_count = shown_products_count | plus: 1 -%}
                             {%- render 'product-item', product: product, reduced_content: true, reduced_font_size: true, hide_secondary_image: true, sizes_attribute: '(max-width: 740px) 65px, 92px' -%}
                           {%- endif -%}
