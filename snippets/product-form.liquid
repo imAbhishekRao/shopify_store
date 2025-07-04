@@ -769,7 +769,12 @@
               {%- assign inventory_threshold = block.settings.low_inventory_threshold | default: 20 -%}
               {%- assign variant_inventory = product.selected_or_first_available_variant.inventory_quantity -%}
               {%- assign variant_available = product.selected_or_first_available_variant.available -%}
-              {%- assign can_add_to_cart = variant_available and variant_inventory >= inventory_threshold -%}
+              {%- assign can_add_to_cart = false -%}
+              {%- if variant_available -%}
+                {%- if variant_inventory >= inventory_threshold -%}
+                  {%- assign can_add_to_cart = true -%}
+                {%- endif -%}
+              {%- endif -%}
               <product-payment-container js-pdp-submit-btn form-id="{{ product_form_id }}" {% if update_url %}id="MainPaymentContainer"{% endif %} class="{% if product.selected_or_first_available_variant.metafields.custom.new_variant_not_for_sale == true %}hide{% endif %} product-form__payment-container" {{ block.shopify_attributes }}>
                 <button id="AddToCart" type="submit" is="loader-button" {% unless block.settings.show_payment_button and template.suffix != 'quick-buy-popover' %}data-use-primary{% endunless %} data-product-add-to-cart-button data-button-content="{% if product.template_suffix == 'pre-order' %}{{ 'product.form.pre_order' | t | escape }}{% else %}{{ 'product.form.add_to_cart' | t | escape }}{% endif %}" class="product-form__add-button button {% unless can_add_to_cart %}button--ternary{% else %}{% if block.settings.show_payment_button and template.suffix != 'quick-buy-popover' %}button--secondary{% else %}button--primary{% endif %}{% endunless %} button--full" {% unless can_add_to_cart %}disabled{% endunless %}>
                   {%- if can_add_to_cart -%}
