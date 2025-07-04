@@ -375,8 +375,19 @@
                         {%- assign matching_product = cart.items | where: 'product_id', product.id -%}
 
                         {%- if matching_product.size == 0 -%}
-                          {%- assign shown_products_count = shown_products_count | plus: 1 -%}
-                          {%- render 'product-item', product: product, reduced_content: true, reduced_font_size: true, hide_secondary_image: true, sizes_attribute: '(max-width: 740px) 65px, 92px' -%}
+                          {%- comment -%}Check if product has any available variants{%- endcomment -%}
+                          {%- assign has_available_variants = false -%}
+                          {%- for variant in product.variants -%}
+                            {%- if variant.available -%}
+                              {%- assign has_available_variants = true -%}
+                              {%- break -%}
+                            {%- endif -%}
+                          {%- endfor -%}
+                          
+                          {%- if has_available_variants -%}
+                            {%- assign shown_products_count = shown_products_count | plus: 1 -%}
+                            {%- render 'product-item', product: product, reduced_content: true, reduced_font_size: true, hide_secondary_image: true, sizes_attribute: '(max-width: 740px) 65px, 92px' -%}
+                          {%- endif -%}
                         {%- endif -%}
                       {%- endfor -%}
                     </div>

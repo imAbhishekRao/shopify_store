@@ -297,7 +297,19 @@
                 {% if product.metafields.custom.hide_on_collection_page == true %}
                   {% continue %}
                 {% endif %}
-                {%- render 'product-item', product: product, reduced_content: true, reduced_font_size: true, sizes_attribute: '(max-width: 740px) 105px, 215px' -%}
+                
+                {%- comment -%}Check if product has any available variants{%- endcomment -%}
+                {%- assign has_available_variants = false -%}
+                {%- for variant in product.variants -%}
+                  {%- if variant.available -%}
+                    {%- assign has_available_variants = true -%}
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                
+                {%- if has_available_variants -%}
+                  {%- render 'product-item', product: product, reduced_content: true, reduced_font_size: true, sizes_attribute: '(max-width: 740px) 105px, 215px' -%}
+                {%- endif -%}
               {%- endfor -%}
             </div>
           </div>

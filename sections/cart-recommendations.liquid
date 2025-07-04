@@ -50,11 +50,22 @@
               {%- assign matching_product = cart.items | where: 'product_id', product.id -%}
 
               {%- if matching_product.size == 0 -%}
-                {%- assign shown_products_count = shown_products_count | plus: 1 -%}
-                {%- assign largest_image_aspect_ratio = largest_image_aspect_ratio | at_most: product.featured_media.aspect_ratio -%}
+                {%- comment -%}Check if product has any available variants{%- endcomment -%}
+                {%- assign has_available_variants = false -%}
+                {%- for variant in product.variants -%}
+                  {%- if variant.available -%}
+                    {%- assign has_available_variants = true -%}
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                
+                {%- if has_available_variants -%}
+                  {%- assign shown_products_count = shown_products_count | plus: 1 -%}
+                  {%- assign largest_image_aspect_ratio = largest_image_aspect_ratio | at_most: product.featured_media.aspect_ratio -%}
 
-                {%- capture sizes_attribute -%}(max-width: 740px) 75vw, min({{ 100.0 | divided_by: 4 | ceil }}vw, {{ 1520.0 | divided_by: 4 | ceil }}px){%- endcapture -%}
-                {%- render 'product-item', product: product, sizes_attribute: sizes_attribute, reveal: settings.stagger_products_apparition -%}
+                  {%- capture sizes_attribute -%}(max-width: 740px) 75vw, min({{ 100.0 | divided_by: 4 | ceil }}vw, {{ 1520.0 | divided_by: 4 | ceil }}px){%- endcapture -%}
+                  {%- render 'product-item', product: product, sizes_attribute: sizes_attribute, reveal: settings.stagger_products_apparition -%}
+                {%- endif -%}
               {%- endif -%}
             {%- endfor -%}
           </div>
