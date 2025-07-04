@@ -70,16 +70,8 @@
                   {% continue %}
                 {% endif %}
                 
-                {%- comment -%}Check if product has any available variants{%- endcomment -%}
-                {%- assign has_available_variants = false -%}
-                {%- for variant in product.variants -%}
-                  {%- if variant.available -%}
-                    {%- assign has_available_variants = true -%}
-                    {%- break -%}
-                  {%- endif -%}
-                {%- endfor -%}
-                
-                {%- unless has_available_variants -%}
+                {%- comment -%}Only show products that are completely available{%- endcomment -%}
+                {%- unless product.available -%}
                   {%- continue -%}
                 {%- endunless -%}
                 
