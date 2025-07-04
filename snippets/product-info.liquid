@@ -483,4 +483,8 @@
       </div>
     </popover-content>
   {%- endif -%}
+
+  {%- if show_quick_add and product.available and product.variants.size > 1 -%}
+    <!-- Show quick add form -->
+  {%- endif -%}
 </div>
