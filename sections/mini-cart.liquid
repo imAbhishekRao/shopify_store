@@ -347,16 +347,16 @@
             {%- assign matching_product = cart.items | where: 'product_id', product.id | first -%}
 
             {%- if matching_product == blank -%}
-              {%- comment -%}Only count products where ALL variants are available{%- endcomment -%}
-              {%- assign all_variants_available = true -%}
+              {%- comment -%}Only count products that have at least one available variant{%- endcomment -%}
+              {%- assign has_available_variant = false -%}
               {%- for variant in product.variants -%}
-                {%- unless variant.available -%}
-                  {%- assign all_variants_available = false -%}
+                {%- if variant.available -%}
+                  {%- assign has_available_variant = true -%}
                   {%- break -%}
-                {%- endunless -%}
+                {%- endif -%}
               {%- endfor -%}
               
-              {%- if all_variants_available -%}
+              {%- if has_available_variant -%}
                 {%- assign acceptable_recommendations_count = acceptable_recommendations_count | plus: 1 -%}
               {%- endif -%}
             {%- endif -%}
@@ -386,18 +386,23 @@
                         {%- assign matching_product = cart.items | where: 'product_id', product.id -%}
 
                         {%- if matching_product.size == 0 -%}
-                          {%- comment -%}Only show products where ALL variants are available{%- endcomment -%}
-                          {%- assign all_variants_available = true -%}
+                          {%- comment -%}Only show products that have at least one available variant{%- endcomment -%}
+                          {%- assign has_available_variant = false -%}
                           {%- for variant in product.variants -%}
-                            {%- unless variant.available -%}
-                              {%- assign all_variants_available = false -%}
+                            {%- if variant.available -%}
+                              {%- assign has_available_variant = true -%}
                               {%- break -%}
-                            {%- endunless -%}
+                            {%- endif -%}
                           {%- endfor -%}
                           
-                          {%- if all_variants_available -%}
+                          {%- if has_available_variant -%}
+                            {%- comment -%}Create a filtered product with only available variants{%- endcomment -%}
+                            {%- assign filtered_variants = product.variants | where: 'available', true -%}
+                            {%- assign filtered_product = product -%}
+                            {%- assign filtered_product.variants = filtered_variants -%}
+                            
                             {%- assign shown_products_count = shown_products_count | plus: 1 -%}
-                            {%- render 'product-item', product: product, reduced_content: true, reduced_font_size: true, hide_secondary_image: true, sizes_attribute: '(max-width: 740px) 65px, 92px' -%}
+                            {%- render 'product-item', product: filtered_product, reduced_content: true, reduced_font_size: true, hide_secondary_image: true, sizes_attribute: '(max-width: 740px) 65px, 92px' -%}
                           {%- endif -%}
                         {%- endif -%}
                       {%- endfor -%}

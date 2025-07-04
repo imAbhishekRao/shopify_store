@@ -50,21 +50,26 @@
               {%- assign matching_product = cart.items | where: 'product_id', product.id -%}
 
               {%- if matching_product.size == 0 -%}
-                {%- comment -%}Only show products where ALL variants are available{%- endcomment -%}
-                {%- assign all_variants_available = true -%}
+                {%- comment -%}Only show products that have at least one available variant{%- endcomment -%}
+                {%- assign has_available_variant = false -%}
                 {%- for variant in product.variants -%}
-                  {%- unless variant.available -%}
-                    {%- assign all_variants_available = false -%}
+                  {%- if variant.available -%}
+                    {%- assign has_available_variant = true -%}
                     {%- break -%}
-                  {%- endunless -%}
+                  {%- endif -%}
                 {%- endfor -%}
                 
-                {%- if all_variants_available -%}
+                {%- if has_available_variant -%}
+                  {%- comment -%}Create a filtered product with only available variants{%- endcomment -%}
+                  {%- assign filtered_variants = product.variants | where: 'available', true -%}
+                  {%- assign filtered_product = product -%}
+                  {%- assign filtered_product.variants = filtered_variants -%}
+                  
                   {%- assign shown_products_count = shown_products_count | plus: 1 -%}
                   {%- assign largest_image_aspect_ratio = largest_image_aspect_ratio | at_most: product.featured_media.aspect_ratio -%}
 
                   {%- capture sizes_attribute -%}(max-width: 740px) 75vw, min({{ 100.0 | divided_by: 4 | ceil }}vw, {{ 1520.0 | divided_by: 4 | ceil }}px){%- endcapture -%}
-                  {%- render 'product-item', product: product, sizes_attribute: sizes_attribute, reveal: settings.stagger_products_apparition -%}
+                  {%- render 'product-item', product: filtered_product, sizes_attribute: sizes_attribute, reveal: settings.stagger_products_apparition -%}
                 {%- endif -%}
               {%- endif -%}
             {%- endfor -%}
