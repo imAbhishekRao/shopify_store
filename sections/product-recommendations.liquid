@@ -62,16 +62,27 @@
                 {%- if product.metafields.custom.hide_on_collection_page == true -%}
                   {% continue %}
                 {%- endif -%}
-                <div class="product-card product--featured">
-                  <div class="product-card__media">
-                    {%- render 'product-media', product: product -%}
-                  </div>
+                <div class="product-card product-card--recommendation">
+                  <a href="{{ product.url }}" class="product-card__media-link">
+                    <img class="product-card__media" src="{{ product.featured_image | image_url: width: 400 }}" alt="{{ product.featured_image.alt | escape }}" loading="lazy" />
+                  </a>
                   <div class="product-card__info">
-                    {%- render 'product-info', product: product, featured: true, update_url: false -%}
+                    <a href="{{ product.url }}" class="product-card__title">{{ product.title }}</a>
+                    <div class="product-card__price">{{ product.price | money }}</div>
                   </div>
-                  <div class="product-card__form">
-                    {%- render 'product-form', product: product, update_url: false -%}
-                  </div>
+                  <form method="post" action="/cart/add" class="product-card__form" enctype="multipart/form-data">
+                    <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+                    {%- if product.variants.size > 1 -%}
+                      <select name="id" class="product-card__variant-picker">
+                        {%- for variant in product.variants -%}
+                          {%- if variant.available -%}
+                            <option value="{{ variant.id }}">{{ variant.title }}</option>
+                          {%- endif -%}
+                        {%- endfor -%}
+                      </select>
+                    {%- endif -%}
+                    <button type="submit" class="product-card__add-to-cart button button--primary">{{ 'product.form.add_to_cart' | t }}</button>
+                  </form>
                 </div>
               {%- endfor -%}
             </div>
