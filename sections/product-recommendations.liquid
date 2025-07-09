@@ -27,6 +27,35 @@
 
     --section-background: {{ section_background.red }}, {{ section_background.green }}, {{ section_background.blue }};
     --section-products-per-row: 2;
+    
+    /* Complementary products specific styles */
+    .product-item__form {
+      margin-top: 12px;
+    }
+    .variant-selector {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(var(--text-color), 0.2);
+      background: transparent;
+      color: rgba(var(--text-color), 1);
+    }
+    .add-to-cart-complementary {
+      width: 100%;
+      padding: 10px;
+      background: rgba(var(--text-color), 1);
+      color: rgba(var(--section-background), 1);
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .add-to-cart-complementary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .variant-selector:disabled {
+      opacity: 0.6;
+    }
   }
 
   @media screen and (min-width: 741px) {
@@ -42,7 +71,7 @@
   }
 </style>
 
-<product-recommendations section-id="{{ section.id }}" intent="related" product-id="{{ product.id }}" recommendations-count="{{ section.settings.recommendations_count }}" class="{{ section.settings.section_class }} section {% unless blends_with_background %}section--flush{% endunless %}">
+<product-recommendations section-id="{{ section.id }}" intent="complementary" product-id="{{ product.id }}" recommendations-count="{{ section.settings.recommendations_count }}" class="{{ section.settings.section_class }} section {% unless blends_with_background %}section--flush{% endunless %}">
   {%- if recommendations.performed and recommendations.products.size > 0 -%}
     <div class="section__color-wrapper">
       <div class="container {% unless blends_with_background %}vertical-breather{% endunless %}">
@@ -54,7 +83,7 @@
               {%- endif -%}
 
               {%- if section.settings.title != blank -%}
-                <h3 class="heading h3">{{ section.settings.title }}</h3>
+                <h3 class="heading h3">{{ section.settings.title | default: 'Pairs well with' }}</h3>
               {%- endif -%}
             </div>
           </header>
@@ -83,15 +112,104 @@
                   {%- continue -%}
                 {%- endunless -%}
                 
-                {%- comment -%}Create a filtered product with only available variants{%- endcomment -%}
-                {%- assign filtered_variants = product.variants | where: 'available', true -%}
-                {%- assign filtered_product = product -%}
-                {%- assign filtered_product.variants = filtered_variants -%}
-                
                 {%- assign smallest_image_aspect_ratio = smallest_image_aspect_ratio | at_least: product.featured_media.aspect_ratio -%}
 
                 {%- capture sizes_attribute -%}(max-width: 740px) 75vw, min({{ 100.0 | divided_by: 4 | ceil }}vw, {{ 1520.0 | divided_by: 4 | ceil }}px){%- endcapture -%}
-                {%- render 'product-item', product: filtered_product, sizes_attribute: sizes_attribute, reveal: settings.stagger_products_apparition, show_quick_add: true -%}
+                
+                <div class="product-item" data-product-handle="{{ product.handle }}">
+                  <a href="{{ product.url }}" class="product-item__image-container">
+                    <img
+                      class="product-item__image"
+                      loading="lazy"
+                      sizes="{{ sizes_attribute }}"
+                      {% render 'image-attributes', image: product.featured_media, sizes: '200,300,400,500,600,700,800,900,1000,1100,1200' %}
+                    >
+                  </a>
+
+                  <div class="product-item__info">
+                    <a href="{{ product.url }}" class="product-item__title">{{ product.title }}</a>
+
+                    <div class="product-item__price-list">
+                      {%- render 'price-list', product: product -%}
+                    </div>
+                  </div>
+                  
+                  <div class="product-item__form" data-product-id="{{ product.id }}">
+                    {%- assign color_option = product.options_with_values | where: 'name', 'Color' | first -%}
+                    {%- assign size_option = product.options_with_values | where: 'name', 'Size' | first -%}
+                    
+                    {%- if color_option -%}
+                      <div class="selector-wrapper">
+                        <select 
+                          class="variant-selector color-selector"
+                          data-option-index="{{ color_option.position }}"
+                          aria-label="Select color"
+                        >
+                          <option value="">Select Color</option>
+                          {%- for value in color_option.values -%}
+                            {%- assign available = false -%}
+                            {%- for variant in product.variants -%}
+                              {%- if variant.options[color_option.position] == value and variant.available -%}
+                                {%- assign available = true -%}
+                                {%- break -%}
+                              {%- endif -%}
+                            {%- endfor -%}
+                            <option 
+                              value="{{ value | escape }}" 
+                              {% unless available %}disabled{% endunless %}
+                            >
+                              {{ value }}{% unless available %} - Sold Out{% endunless %}
+                            </option>
+                          {%- endfor -%}
+                        </select>
+                      </div>
+                    {%- endif -%}
+                    
+                    {%- if size_option -%}
+                      <div class="selector-wrapper">
+                        <select 
+                          class="variant-selector size-selector"
+                          data-option-index="{{ size_option.position }}"
+                          aria-label="Select size"
+                        >
+                          <option value="">Select Size</option>
+                          {%- for value in size_option.values -%}
+                            {%- assign available = false -%}
+                            {%- for variant in product.variants -%}
+                              {%- if variant.options[size_option.position] == value and variant.available -%}
+                                {%- assign available = true -%}
+                                {%- break -%}
+                              {%- endif -%}
+                            {%- endfor -%}
+                            <option 
+                              value="{{ value | escape }}" 
+                              {% unless available %}disabled{% endunless %}
+                            >
+                              {{ value }}{% unless available %} - Sold Out{% endunless %}
+                            </option>
+                          {%- endfor -%}
+                        </select>
+                      </div>
+                    {%- endif -%}
+                    
+                    <button 
+                      type="button" 
+                      class="add-to-cart-complementary"
+                      data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+                      {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}
+                    >
+                      {%- if product.selected_or_first_available_variant.available -%}
+                        Add to Cart
+                      {%- else -%}
+                        Sold Out
+                      {%- endif -%}
+                    </button>
+                    
+                    <script type="application/json" class="variants-data">
+                      {{ product.variants | json }}
+                    </script>
+                  </div>
+                </div>
               {%- endfor -%}
             </div>
           </div>
@@ -115,9 +233,105 @@
   {%- endif -%}
 </product-recommendations>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize complementary product forms
+    function initComplementaryForms() {
+      document.querySelectorAll('.product-item__form').forEach(form => {
+        const productId = form.dataset.productId;
+        const variantsData = JSON.parse(form.querySelector('.variants-data').textContent);
+        const colorSelector = form.querySelector('.color-selector');
+        const sizeSelector = form.querySelector('.size-selector');
+        const addToCartBtn = form.querySelector('.add-to-cart-complementary');
+        
+        // Only initialize once
+        if (form.dataset.initialized) return;
+        form.dataset.initialized = true;
+        
+        // Update variant when selections change
+        const updateVariant = () => {
+          const selectedOptions = [];
+          
+          if (colorSelector) selectedOptions[colorSelector.dataset.optionIndex] = colorSelector.value;
+          if (sizeSelector) selectedOptions[sizeSelector.dataset.optionIndex] = sizeSelector.value;
+          
+          // Find matching variant
+          const matchedVariant = variantsData.find(variant => {
+            return variant.options.every((option, index) => {
+              return !selectedOptions[index] || option === selectedOptions[index];
+            });
+          });
+          
+          if (matchedVariant) {
+            addToCartBtn.dataset.variantId = matchedVariant.id;
+            addToCartBtn.disabled = !matchedVariant.available;
+            addToCartBtn.textContent = matchedVariant.available ? 'Add to Cart' : 'Sold Out';
+          } else {
+            addToCartBtn.disabled = true;
+            addToCartBtn.textContent = 'Select Options';
+          }
+        };
+        
+        // Add to cart functionality
+        addToCartBtn.addEventListener('click', () => {
+          const variantId = addToCartBtn.dataset.variantId;
+          if (!variantId || addToCartBtn.disabled) return;
+          
+          addToCartBtn.disabled = true;
+          addToCartBtn.textContent = 'Adding...';
+          
+          fetch('/cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              items: [{
+                id: variantId,
+                quantity: 1
+              }]
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            addToCartBtn.textContent = 'Added!';
+            setTimeout(() => {
+              updateVariant();
+            }, 2000);
+            
+            // Update cart count
+            document.dispatchEvent(new CustomEvent('cart:updated'));
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            addToCartBtn.textContent = 'Error';
+            setTimeout(() => {
+              updateVariant();
+            }, 2000);
+          });
+        });
+        
+        // Add event listeners
+        if (colorSelector) colorSelector.addEventListener('change', updateVariant);
+        if (sizeSelector) sizeSelector.addEventListener('change', updateVariant);
+      });
+    }
+
+    // Initialize forms on load
+    initComplementaryForms();
+    
+    // Reinitialize when recommendations update
+    const productRecommendations = document.querySelector('product-recommendations');
+    if (productRecommendations) {
+      const observer = new MutationObserver(() => {
+        initComplementaryForms();
+      });
+      observer.observe(productRecommendations, { childList: true, subtree: true });
+    }
+  });
+</script>
+
 {% schema %}
 {
-  "name": "Related products",
+  "name": "Complementary Products",
   "class": "shopify-section--product-recommendations",
   "enabled_on": {
     "templates": ["product"]
@@ -125,7 +339,7 @@
   "settings": [
     {
       "type": "paragraph",
-      "content": "Dynamic recommendations change and improve with time. Create manual product recommendations using the Shopify Search & Discovery app. [Learn more](https://help.shopify.com/en/manual/online-store/search-and-discovery/product-recommendations)."
+      "content": "Display products that pair well with the current product"
     },
     {
       "type": "text",
@@ -136,14 +350,14 @@
       "type": "text",
       "id": "title",
       "label": "Heading",
-      "default": "You may also like"
+      "default": "Pairs well with"
     },
     {
       "type": "range",
       "id": "recommendations_count",
-      "min": 4,
+      "min": 3,
       "max": 10,
-      "label": "Recommendations count",
+      "label": "Number of recommendations",
       "default": 4
     },
     {
@@ -170,7 +384,7 @@
   ],
   "presets": [
     {
-      "name": "Related products"
+      "name": "Complementary products"
     }
   ]
 }
