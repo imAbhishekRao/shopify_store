@@ -156,6 +156,18 @@
         "transition_effect": "slide"
       }
     },
+    "product_recommendations_mteDAW": {
+      "type": "product-recommendations",
+      "name": "Related products",
+      "settings": {
+        "subheading": "",
+        "title": "You may also like",
+        "recommendations_count": 3,
+        "background": "rgba(0,0,0,0)",
+        "text_color": "rgba(0,0,0,0)",
+        "section_class": ""
+      }
+    },
     "multi_column_LEa74J": {
       "type": "multi-column",
       "blocks": {
@@ -625,18 +637,6 @@
       "settings": {
         "include_horizontal_margins": true,
         "include_vertical_margins": true
-      }
-    },
-    "product_recommendations_mteDAW": {
-      "type": "product-recommendations",
-      "name": "Related products",
-      "settings": {
-        "subheading": "",
-        "title": "You may also like",
-        "recommendations_count": 4,
-        "background": "rgba(0,0,0,0)",
-        "text_color": "rgba(0,0,0,0)",
-        "section_class": ""
       }
     }
   },
