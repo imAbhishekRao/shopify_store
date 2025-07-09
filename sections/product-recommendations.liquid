@@ -76,13 +76,7 @@
                         {%- endfor -%}
                       </select>
                     {%- endif -%}
-                    <button type="submit" class="product-card__add-to-cart button button--primary" {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
-                      {%- if product.selected_or_first_available_variant.available -%}
-                        {{ 'product.form.add_to_cart' | t }}
-                      {%- else -%}
-                        {{ 'product.form.sold_out' | t }}
-                      {%- endif -%}
-                    </button>
+                    <button type="submit" class="product-card__add-to-cart button button--primary" {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>{{ 'product.form.add_to_cart' | t }}</button>
                   </form>
                 </div>
               {%- endfor -%}

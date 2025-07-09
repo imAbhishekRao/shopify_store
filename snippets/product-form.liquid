@@ -790,8 +790,8 @@
                       {{- 'product.form.pre_order' | t -}}
                     {%- else -%}
                       {{- 'product.form.add_to_cart' | t -}}
-                    {%- endif -%}
-                  </button>
+                  {%- endif -%}
+                </button>
                 {% endif %}
 
                 {%- if block.settings.show_payment_button and recipient_feature_active == false and template.suffix != 'quick-buy-popover' -%}
