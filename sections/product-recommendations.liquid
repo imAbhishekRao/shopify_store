@@ -56,20 +56,25 @@
           </header>
         {%- endif -%}
         <div class="product-list product-list--center">
-          <div class="product-list__inner">
-            {%- for product in recommendations.products -%}
-              {%- if product.metafields.custom.hide_on_collection_page == true -%}
-                {% continue %}
-              {%- endif -%}
-              <div class="product product--featured product--thumbnails-bottom">
-                {%- render 'product-media', product: product -%}
-                {%- render 'bd-product-media', product: product -%}
-                {%- render 'product-info', product: product, featured: true, update_url: false -%}
-                <div class="product-form">
-                  {%- render 'product-form', product: product, update_url: false -%}
+          <div class="scroller">
+            <div class="product-list__inner product-list__inner--scroller hide-scrollbar">
+              {%- for product in recommendations.products -%}
+                {%- if product.metafields.custom.hide_on_collection_page == true -%}
+                  {% continue %}
+                {%- endif -%}
+                <div class="product-card product--featured">
+                  <div class="product-card__media">
+                    {%- render 'product-media', product: product -%}
+                  </div>
+                  <div class="product-card__info">
+                    {%- render 'product-info', product: product, featured: true, update_url: false -%}
+                  </div>
+                  <div class="product-card__form">
+                    {%- render 'product-form', product: product, update_url: false -%}
+                  </div>
                 </div>
-              </div>
-            {%- endfor -%}
+              {%- endfor -%}
+            </div>
           </div>
         </div>
       </div>
