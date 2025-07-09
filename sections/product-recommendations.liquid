@@ -59,9 +59,6 @@
           <div class="scroller">
             <div class="product-list__inner product-list__inner--scroller hide-scrollbar">
               {%- for product in recommendations.products -%}
-                {%- if product.metafields.custom.hide_on_collection_page == true -%}
-                  {% continue %}
-                {%- endif -%}
                 <div class="product-card product-card--recommendation">
                   <a href="{{ product.url }}" class="product-card__media-link">
                     <img class="product-card__media" src="{{ product.featured_image | image_url: width: 400 }}" alt="{{ product.featured_image.alt | escape }}" loading="lazy" />
@@ -75,13 +72,17 @@
                     {%- if product.variants.size > 1 -%}
                       <select name="id" class="product-card__variant-picker">
                         {%- for variant in product.variants -%}
-                          {%- if variant.available -%}
-                            <option value="{{ variant.id }}">{{ variant.title }}</option>
-                          {%- endif -%}
+                          <option value="{{ variant.id }}" {% unless variant.available %}disabled{% endunless %}>{{ variant.title }}</option>
                         {%- endfor -%}
                       </select>
                     {%- endif -%}
-                    <button type="submit" class="product-card__add-to-cart button button--primary">{{ 'product.form.add_to_cart' | t }}</button>
+                    <button type="submit" class="product-card__add-to-cart button button--primary" {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
+                      {%- if product.selected_or_first_available_variant.available -%}
+                        {{ 'product.form.add_to_cart' | t }}
+                      {%- else -%}
+                        {{ 'product.form.sold_out' | t }}
+                      {%- endif -%}
+                    </button>
                   </form>
                 </div>
               {%- endfor -%}
